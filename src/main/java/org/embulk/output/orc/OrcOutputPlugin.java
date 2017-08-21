@@ -58,6 +58,19 @@ public class OrcOutputPlugin
         @ConfigDefault("\".%03d\"")
         String getSequenceFormat();
 
+        // ORC File options
+        @Config("strip_size")
+        @ConfigDefault("100000")
+        Integer getStripSize();
+
+        @Config("buffer_size")
+        @ConfigDefault("10000")
+        Integer getBufferSize();
+
+        @Config("compression_kind")
+        @ConfigDefault("ZLIB")
+        public String getCompressionKind();
+
         @Config("overwrite")
         @ConfigDefault("false")
         boolean getOverwrite();
@@ -185,18 +198,47 @@ public class OrcOutputPlugin
 
         Writer writer = null;
         try {
+            // Make writerOptions
+            OrcFile.WriterOptions writerOptions = createWriterOptions(task, conf);
             // see: https://stackoverflow.com/questions/9256733/how-to-connect-hive-in-ireport
             // see: https://community.hortonworks.com/content/kbentry/73458/connecting-dbvisualizer-and-datagrip-to-hive-with.html
             writer = OrcFile.createWriter(new Path(buildPath(task, processorIndex)),
-                    OrcFile.writerOptions(conf)
-                            .setSchema(oschema)
-                            .compress(CompressionKind.ZLIB)
+                    writerOptions.setSchema(oschema)
                             .version(OrcFile.Version.V_0_12));
         }
         catch (IOException e) {
             e.printStackTrace();
         }
         return writer;
+    }
+
+    private OrcFile.WriterOptions createWriterOptions(PluginTask task, Configuration conf)
+    {
+        final Integer bufferSize = task.getBufferSize();
+        final Integer stripSize = task.getStripSize();
+        final String kindString = task.getCompressionKind();
+        CompressionKind kind;
+        switch (kindString) {
+            case "ZLIB":
+                kind = CompressionKind.ZLIB;
+                break;
+            case "SNAPPY":
+                kind = CompressionKind.SNAPPY;
+                break;
+            case "LZO":
+                kind = CompressionKind.LZO;
+                break;
+            case "LZ4":
+                kind = CompressionKind.LZ4;
+                break;
+            default:
+                kind = CompressionKind.NONE;
+                break;
+        }
+        return OrcFile.writerOptions(conf).
+                bufferSize(bufferSize)
+                .stripeSize(stripSize)
+                .compress(kind);
     }
 
     class OrcTransactionalPageOutput
