@@ -1,5 +1,7 @@
 # Orc output plugin for Embulk
 
+[![Build Status](https://travis-ci.org/yuokada/embulk-output-orc.svg?branch=master)](https://travis-ci.org/yuokada/embulk-output-orc)
+
 TODO: Write short description here and build.gradle file.
 
 ## Overview
