@@ -14,7 +14,7 @@ configurations {
     runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
 }
 
-version = "0.0.1"
+version = "0.0.2"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -27,10 +27,8 @@ dependencies {
     compile "org.apache.orc:orc:1.4.0"
     compile "org.apache.orc:orc-core:1.4.0"
     compile "org.apache.orc:orc-mapreduce:1.4.0"
-
     compile "org.apache.hadoop:hadoop-common:2.6.4"
     compile "org.apache.hadoop:hadoop-client:2.6.4"
-//    compile "org.apache.hadoop:hadoop-hdfs:2.7.4"
 
     testCompile "junit:junit:4.+"
     testCompile "org.embulk:embulk-core:0.8.29:tests"
