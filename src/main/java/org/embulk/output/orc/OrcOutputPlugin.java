@@ -1,5 +1,6 @@
 package org.embulk.output.orc;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
@@ -8,6 +9,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.LongColumnVector;
+import org.apache.hadoop.hive.ql.exec.vector.TimestampColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
 import org.apache.hadoop.util.VersionInfo;
 import org.apache.orc.CompressionKind;
@@ -29,8 +31,13 @@ import org.embulk.spi.Page;
 import org.embulk.spi.PageReader;
 import org.embulk.spi.Schema;
 import org.embulk.spi.TransactionalPageOutput;
+import org.embulk.spi.time.Timestamp;
 import org.embulk.spi.time.TimestampFormatter;
 import org.embulk.spi.type.Type;
+import org.embulk.spi.util.Timestamps;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.List;
@@ -60,11 +67,22 @@ public class OrcOutputPlugin
         @Config("overwrite")
         @ConfigDefault("false")
         boolean getOverwrite();
+
+        @Config("default_from_timezone")
+        @ConfigDefault("\"UTC\"")
+        DateTimeZone getDefaultFromTimeZone();
     }
 
     public interface TimestampColumnOption
             extends Task, TimestampFormatter.TimestampColumnOption
     {
+        @Config("from_timezone")
+        @ConfigDefault("null")
+        Optional<DateTimeZone> getFromTimeZone();
+
+        @Config("from_format")
+        @ConfigDefault("null")
+        Optional<List<String>> getFromFormat();
     }
 
     @Override
@@ -106,7 +124,7 @@ public class OrcOutputPlugin
         final PageReader reader = new PageReader(schema);
         Writer writer = createWriter(task, schema, taskIndex);
 
-        return new OrcTransactionalPageOutput(reader, writer);
+        return new OrcTransactionalPageOutput(reader, writer, task);
         // Write your code here :)
 //        throw new UnsupportedOperationException("OrcOutputPlugin.run method is not implemented yet");
     }
@@ -122,7 +140,6 @@ public class OrcOutputPlugin
     private TypeDescription getSchema(Schema schema)
     {
         TypeDescription oschema = TypeDescription.createStruct();
-        // TODO: cleanup this code.
         for (int i = 0; i < schema.size(); i++) {
             Column column = schema.getColumn(i);
             Type type = column.getType();
@@ -140,22 +157,13 @@ public class OrcOutputPlugin
                     oschema.addField(column.getName(), TypeDescription.createString());
                     break;
                 case "timestamp":
-//                    final ZoneId zoneId = ZoneId.systemDefault();
-//                    final double randd = Math.random();
-//                    LocalDateTime randomDate = LocalDateTime.now()
-//                            .plusDays((long) (randd * 100))
-//                            .plusSeconds((long) (randd * 1000000));
-//                    Timestamp timestamp = Timestamp.ofEpochSecond(
-//                            randomDate.atZone(zoneId).toEpochSecond()
-//                    );
-//                    pagebuilder.setTimestamp(column, timestamp);
+                    oschema.addField(column.getName(), TypeDescription.createTimestamp());
                     break;
                 default:
                     System.out.println("Unsupported type");
                     break;
             }
         }
-//        schema.getColumns();
         return oschema;
     }
 
@@ -173,6 +181,8 @@ public class OrcOutputPlugin
 
     private Writer createWriter(PluginTask task, Schema schema, int processorIndex)
     {
+        final TimestampFormatter[] timestampFormatters = Timestamps.newTimestampColumnFormatters(task, schema, task.getColumnOptions());
+
         Configuration conf = getHadoopConfiguration();
         TypeDescription oschema = getSchema(schema);
 
@@ -186,8 +196,6 @@ public class OrcOutputPlugin
             writer = OrcFile.createWriter(new Path(buildPath(task, processorIndex)),
                     OrcFile.writerOptions(conf)
                             .setSchema(oschema)
-                            .stripeSize(100000)
-                            .bufferSize(10000)
                             .compress(CompressionKind.ZLIB)
                             .version(OrcFile.Version.V_0_12));
         }
@@ -202,26 +210,32 @@ public class OrcOutputPlugin
     {
         private PageReader reader;
         private Writer writer;
+        private DateTimeFormatter formatter;
 
-        public OrcTransactionalPageOutput(PageReader reader, Writer writer)
+        public OrcTransactionalPageOutput(PageReader reader, Writer writer, PluginTask task)
         {
             this.reader = reader;
             this.writer = writer;
+
+            // formatter
+            DateTimeZone defaultTimeZone = DateTimeZone.forTimeZone(task.getDefaultFromTimeZone().toTimeZone());
+            formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(defaultTimeZone);
         }
 
         @Override
         public void add(Page page)
         {
-            int size = page.getStringReferences().size();
+            List<String> strings = page.getStringReferences();
             TypeDescription schema = getSchema(reader.getSchema());
             VectorizedRowBatch batch = schema.createRowBatch();
-            batch.size = size; // TODO: replace
+            batch.size = strings.size();
 
             reader.setPage(page);
             int i = 0;
             while (reader.nextRecord()) {
                 // batch.size = page.getStringReferences().size();
                 final int finalI = i;
+
                 reader.getSchema().visitColumns(new ColumnVisitor()
                 {
 
@@ -232,7 +246,13 @@ public class OrcOutputPlugin
                             ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = 0;
                         }
                         else {
-                            ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = reader.getLong(column);
+                            // TODO; Fix all true bug
+                            if (reader.getBoolean(column)) {
+                                ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = 1;
+                            }
+                            else {
+                                ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = 0;
+                            }
                         }
                     }
 
@@ -258,7 +278,17 @@ public class OrcOutputPlugin
                     @Override
                     public void timestampColumn(Column column)
                     {
-                        throw new UnsupportedOperationException("orc output plugin does not support timestamp yet");
+                        if (reader.isNull(column)) {
+                            ((TimestampColumnVector) batch.cols[column.getIndex()]).setNullValue(finalI);
+                        }
+                        else {
+                            Timestamp timestamp = reader.getTimestamp(column);
+                            if (!timestamp.equals("")) {
+                                java.sql.Timestamp ts = new java.sql.Timestamp(timestamp.getEpochSecond() * 1000);
+                                ((TimestampColumnVector) batch.cols[column.getIndex()]).set(finalI, ts);
+                            }
+                            // throw new UnsupportedOperationException("orc output plugin does not support timestamp yet");
+                        }
                     }
 
                     @Override
