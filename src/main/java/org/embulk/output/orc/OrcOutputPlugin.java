@@ -6,10 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.LongColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.TimestampColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
 import org.apache.hadoop.util.VersionInfo;
 import org.apache.orc.CompressionKind;
@@ -24,14 +20,12 @@ import org.embulk.config.Task;
 import org.embulk.config.TaskReport;
 import org.embulk.config.TaskSource;
 import org.embulk.spi.Column;
-import org.embulk.spi.ColumnVisitor;
 import org.embulk.spi.Exec;
 import org.embulk.spi.OutputPlugin;
 import org.embulk.spi.Page;
 import org.embulk.spi.PageReader;
 import org.embulk.spi.Schema;
 import org.embulk.spi.TransactionalPageOutput;
-import org.embulk.spi.time.Timestamp;
 import org.embulk.spi.time.TimestampFormatter;
 import org.embulk.spi.type.Type;
 import org.embulk.spi.util.Timestamps;
@@ -225,78 +219,18 @@ public class OrcOutputPlugin
         @Override
         public void add(Page page)
         {
-            List<String> strings = page.getStringReferences();
+            int size = page.getStringReferences().size();
             TypeDescription schema = getSchema(reader.getSchema());
             VectorizedRowBatch batch = schema.createRowBatch();
-            batch.size = strings.size();
+            batch.size = size;
 
             reader.setPage(page);
             int i = 0;
             while (reader.nextRecord()) {
                 // batch.size = page.getStringReferences().size();
-                final int finalI = i;
-
-                reader.getSchema().visitColumns(new ColumnVisitor()
-                {
-
-                    @Override
-                    public void booleanColumn(Column column)
-                    {
-                        if (reader.isNull(column)) {
-                            ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = 0;
-                        }
-                        else {
-                            // TODO; Fix all true bug
-                            if (reader.getBoolean(column)) {
-                                ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = 1;
-                            }
-                            else {
-                                ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = 0;
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void longColumn(Column column)
-                    {
-                        ((LongColumnVector) batch.cols[column.getIndex()]).vector[finalI] = reader.getLong(column);
-                    }
-
-                    @Override
-                    public void doubleColumn(Column column)
-                    {
-                        ((DoubleColumnVector) batch.cols[column.getIndex()]).vector[finalI] = reader.getDouble(column);
-                    }
-
-                    @Override
-                    public void stringColumn(Column column)
-                    {
-                        ((BytesColumnVector) batch.cols[column.getIndex()]).setVal(finalI,
-                                reader.getString(column).getBytes());
-                    }
-
-                    @Override
-                    public void timestampColumn(Column column)
-                    {
-                        if (reader.isNull(column)) {
-                            ((TimestampColumnVector) batch.cols[column.getIndex()]).setNullValue(finalI);
-                        }
-                        else {
-                            Timestamp timestamp = reader.getTimestamp(column);
-                            if (!timestamp.equals("")) {
-                                java.sql.Timestamp ts = new java.sql.Timestamp(timestamp.getEpochSecond() * 1000);
-                                ((TimestampColumnVector) batch.cols[column.getIndex()]).set(finalI, ts);
-                            }
-                            // throw new UnsupportedOperationException("orc output plugin does not support timestamp yet");
-                        }
-                    }
-
-                    @Override
-                    public void jsonColumn(Column column)
-                    {
-                        throw new UnsupportedOperationException("orc output plugin does not support json type");
-                    }
-                });
+                reader.getSchema().visitColumns(
+                        new OrcColumnVisitor(reader, batch, i)
+                );
                 i++;
             }
             try {
