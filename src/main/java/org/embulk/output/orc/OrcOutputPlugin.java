@@ -128,12 +128,14 @@ public class OrcOutputPlugin
     {
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
+        if (task.getOverwrite()) {
+            OrcOutputPluginHelper.removeOldFile(buildPath(task, taskIndex));
+        }
+
         final PageReader reader = new PageReader(schema);
         Writer writer = createWriter(task, schema, taskIndex);
 
         return new OrcTransactionalPageOutput(reader, writer, task);
-        // Write your code here :)
-//        throw new UnsupportedOperationException("OrcOutputPlugin.run method is not implemented yet");
     }
 
     private String buildPath(PluginTask task, int processorIndex)
