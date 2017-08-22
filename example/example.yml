@@ -53,6 +53,7 @@ exec:
 
 out:
   type: orc
+  overwrite:   true
   path_prefix: "/tmp/output"
   buffer_size: 8000
   strip_size:  90000
