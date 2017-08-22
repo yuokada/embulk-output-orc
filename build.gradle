@@ -87,10 +87,10 @@ Gem::Specification.new do |spec|
   spec.version       = "${project.version}"
   spec.authors       = ["yuokada"]
   spec.summary       = %[Orc output plugin for Embulk]
-  spec.description   = %[Dumps records to Orc.]
+  spec.description   = %[Dumps records to Orc format file.]
   spec.email         = ["callistoiv+git@gmail.com"]
   spec.licenses      = ["MIT"]
-  # TODO set this: spec.homepage      = "https://github.com/callistoiv+git/embulk-output-orc"
+  spec.homepage      = "https://github.com/yuokada/embulk-output-orc"
 
   spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
   spec.test_files    = spec.files.grep(%r"^(test|spec)/")
