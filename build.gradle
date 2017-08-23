@@ -11,18 +11,25 @@ repositories {
 }
 configurations {
     provided
+    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
 }
 
 version = "0.1.0"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
-    compile  "org.embulk:embulk-core:0.8.27"
-    provided "org.embulk:embulk-core:0.8.27"
-    // compile "YOUR_JAR_DEPENDENCY_GROUP:YOUR_JAR_DEPENDENCY_MODULE:YOUR_JAR_DEPENDENCY_VERSION"
+    compile  "org.embulk:embulk-core:0.8.29"
+    provided "org.embulk:embulk-core:0.8.29"
+
+    compile "org.apache.orc:orc:1.4.0"
+    compile "org.apache.orc:orc-core:1.4.0"
+    compile "org.apache.hadoop:hadoop-hdfs:2.6.4"
+
     testCompile "junit:junit:4.+"
+    testCompile "org.embulk:embulk-core:0.8.29:tests"
+    testCompile "org.embulk:embulk-standards:0.8.29"
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {
@@ -77,10 +84,10 @@ Gem::Specification.new do |spec|
   spec.version       = "${project.version}"
   spec.authors       = ["yuokada"]
   spec.summary       = %[Orc output plugin for Embulk]
-  spec.description   = %[Dumps records to Orc.]
+  spec.description   = %[Dumps records to Orc format file.]
   spec.email         = ["callistoiv+git@gmail.com"]
   spec.licenses      = ["MIT"]
-  # TODO set this: spec.homepage      = "https://github.com/callistoiv+git/embulk-output-orc"
+  spec.homepage      = "https://github.com/yuokada/embulk-output-orc"
 
   spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
   spec.test_files    = spec.files.grep(%r"^(test|spec)/")
