@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/yuokada/embulk-output-orc.svg?branch=master)](https://travis-ci.org/yuokada/embulk-output-orc)
 
-TODO: Write short description here and build.gradle file.
-
 ## Overview
 
 * **Plugin type**: output
@@ -13,17 +11,25 @@ TODO: Write short description here and build.gradle file.
 
 ## Configuration
 
-- **option1**: description (integer, required)
-- **option2**: description (string, default: `"myvalue"`)
-- **option3**: description (string, default: `null`)
+- **path_prefix**: A prefix of output path. (string, required)
+- **file_ext**: An extension of output file. (string, default: `.orc`)
+- **sequence_format**: (string, default: `.%03d`)
+- **buffer_size**: Set the ORC buffer size (integer, default: `10000`)
+- **strip_size**: Set the ORC strip size (integer,  default: `100000`)
+- **compression_kind**: description (string, default: `'ZLIB'`)
+- **overwrite**: (LocalFileSystem only) Overwrite if output files already exist. (boolean, default: `false`)
+- **default_from_timezone** Time zone of timestamp columns. This can be overwritten for each column using column_options (DateTimeZone, default: `UTC`)
 
 ## Example
 
 ```yaml
 out:
   type: orc
-  option1: example1
-  option2: example2
+  path_prefix: "/tmp/output"
+  buffer_size: 8000
+  strip_size:  90000
+  compression_kind: ZLIB
+  overwrite:   true
 ```
 
 
