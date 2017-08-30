@@ -29,6 +29,8 @@ import org.embulk.spi.TransactionalPageOutput;
 import org.embulk.spi.time.TimestampFormatter;
 import org.embulk.spi.type.Type;
 import org.embulk.spi.util.Timestamps;
+import org.embulk.util.aws.credentials.AwsCredentials;
+import org.embulk.util.aws.credentials.AwsCredentialsTask;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -41,7 +43,7 @@ public class OrcOutputPlugin
         implements OutputPlugin
 {
     public interface PluginTask
-            extends Task, TimestampFormatter.Task
+            extends Task, TimestampFormatter.Task, AwsCredentialsTask
     {
         @Config("path_prefix")
         String getPathPrefix();
@@ -176,7 +178,7 @@ public class OrcOutputPlugin
         return oschema;
     }
 
-    private Configuration getHadoopConfiguration()
+    private Configuration getHadoopConfiguration(PluginTask task)
     {
         Configuration conf = new Configuration();
 
@@ -185,14 +187,25 @@ public class OrcOutputPlugin
         conf.set("fs.file.impl", LocalFileSystem.class.getName());
         // see: https://stackoverflow.com/questions/20833444/how-to-set-objects-in-hadoop-configuration
 
+        AwsCredentials.getAWSCredentialsProvider(task);
+        if (task.getAccessKeyId().isPresent()) {
+            conf.set("fs.s3a.access.key", task.getAccessKeyId().get());
+            conf.set("fs.s3n.awsAccessKeyId", task.getAccessKeyId().get());
+        }
+        if (task.getSecretAccessKey().isPresent()) {
+            conf.set("fs.s3a.secret.key", task.getSecretAccessKey().get());
+            conf.set("fs.s3n.awsSecretAccessKey", task.getSecretAccessKey().get());
+        }
+
         return conf;
     }
 
     private Writer createWriter(PluginTask task, Schema schema, int processorIndex)
     {
-        final TimestampFormatter[] timestampFormatters = Timestamps.newTimestampColumnFormatters(task, schema, task.getColumnOptions());
+        final TimestampFormatter[] timestampFormatters = Timestamps
+                .newTimestampColumnFormatters(task, schema, task.getColumnOptions());
 
-        Configuration conf = getHadoopConfiguration();
+        Configuration conf = getHadoopConfiguration(task);
         TypeDescription oschema = getSchema(schema);
 
         // see: https://groups.google.com/forum/#!topic/vertx/lLb-slzpWVg
@@ -256,7 +269,8 @@ public class OrcOutputPlugin
             this.writer = writer;
 
             // formatter
-            DateTimeZone defaultTimeZone = DateTimeZone.forTimeZone(task.getDefaultFromTimeZone().toTimeZone());
+            DateTimeZone defaultTimeZone = DateTimeZone
+                    .forTimeZone(task.getDefaultFromTimeZone().toTimeZone());
             formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(defaultTimeZone);
         }
 
