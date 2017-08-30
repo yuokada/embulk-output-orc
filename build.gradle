@@ -8,13 +8,16 @@ import com.github.jrubygradle.JRubyExec
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url "http://dl.bintray.com/embulk-input-s3/maven"
+    }
 }
 configurations {
     provided
     runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
 }
 
-version = "0.1.0"
+version = "0.2.0"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -26,6 +29,10 @@ dependencies {
     compile "org.apache.orc:orc:1.4.0"
     compile "org.apache.orc:orc-core:1.4.0"
     compile "org.apache.hadoop:hadoop-hdfs:2.6.4"
+
+    compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
+    compile "com.amazonaws:aws-java-sdk-s3:1.10.33"
+    compile "org.apache.hadoop:hadoop-aws:2.7.3"
 
     testCompile "junit:junit:4.+"
     testCompile "org.embulk:embulk-core:0.8.29:tests"
