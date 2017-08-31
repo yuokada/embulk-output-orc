@@ -13,6 +13,7 @@
 ## Configuration
 
 - **path_prefix**: A prefix of output path. (string, required)
+  - support: `file`, `s3n` and `s3a`.
 - **file_ext**: An extension of output file. (string, default: `.orc`)
 - **sequence_format**: (string, default: `.%03d`)
 - **buffer_size**: Set the ORC buffer size (integer, default: `10000`)
@@ -20,6 +21,12 @@
 - **compression_kind**: description (string, default: `'ZLIB'`)
 - **overwrite**: (LocalFileSystem only) Overwrite if output files already exist. (boolean, default: `false`)
 - **default_from_timezone** Time zone of timestamp columns. This can be overwritten for each column using column_options (DateTimeZone, default: `UTC`)
+
+- **auth_method**: name of mechanism to authenticate requests (basic, env, instance, profile, properties, anonymous, or session. default: basic)  
+  see: https://github.com/embulk/embulk-input-s3#configuration
+
+    - `env`, `basic`, `profile`, `default`, `session`, `anonymous`, `properties`
+    
 
 ## Example
 
@@ -33,6 +40,17 @@ out:
   overwrite:   true
 ```
 
+## ChangeLog
+
+### ver 0.2.0
+
+- support: output to s3
+
+    - `s3n`, `s3a` protocol
+
+### ver 0.1.0
+
+- initial release
 
 ## Build
 
