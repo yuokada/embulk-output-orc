@@ -19,6 +19,7 @@
 - **buffer_size**: Set the ORC buffer size (integer, default: `10000`)
 - **strip_size**: Set the ORC strip size (integer,  default: `100000`)
 - **compression_kind**: description (string, default: `'ZLIB'`)
+    - `NONE`, `ZLIB`, `SNAPPY`
 - **overwrite**: (LocalFileSystem only) Overwrite if output files already exist. (boolean, default: `false`)
 - **default_from_timezone** Time zone of timestamp columns. This can be overwritten for each column using column_options (DateTimeZone, default: `UTC`)
 
