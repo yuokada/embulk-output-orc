@@ -80,6 +80,10 @@ public class OrcOutputPlugin
         @Config("default_from_timezone")
         @ConfigDefault("\"UTC\"")
         DateTimeZone getDefaultFromTimeZone();
+
+        @Config("endpoint")
+        @ConfigDefault("null")
+        Optional<String> getEndpoint();
     }
 
     public interface TimestampColumnOption
@@ -196,7 +200,9 @@ public class OrcOutputPlugin
             conf.set("fs.s3a.secret.key", task.getSecretAccessKey().get());
             conf.set("fs.s3n.awsSecretAccessKey", task.getSecretAccessKey().get());
         }
-
+        if (task.getEndpoint().isPresent()) {
+            conf.set("fs.s3a.endpoint", task.getEndpoint().get());
+        }
         return conf;
     }
 
