@@ -1,5 +1,6 @@
 package org.embulk.output.orc;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.LongColumnVector;
@@ -57,7 +58,7 @@ public class OrcColumnVisitor
     public void stringColumn(Column column)
     {
         ((BytesColumnVector) batch.cols[column.getIndex()]).setVal(i,
-                reader.getString(column).getBytes());
+                reader.getString(column).getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
