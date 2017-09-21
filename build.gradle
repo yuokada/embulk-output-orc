@@ -23,8 +23,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile  "org.embulk:embulk-core:0.8.29"
-    provided "org.embulk:embulk-core:0.8.29"
+    compile  "org.embulk:embulk-core:0.8.34"
+    provided "org.embulk:embulk-core:0.8.34"
 
     compile "org.apache.orc:orc:1.4.0"
     compile "org.apache.orc:orc-core:1.4.0"
@@ -35,8 +35,8 @@ dependencies {
     compile "org.apache.hadoop:hadoop-aws:2.7.3"
 
     testCompile "junit:junit:4.+"
-    testCompile "org.embulk:embulk-core:0.8.29:tests"
-    testCompile "org.embulk:embulk-standards:0.8.29"
+    testCompile "org.embulk:embulk-core:0.8.34:tests"
+    testCompile "org.embulk:embulk-standards:0.8.34"
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {
