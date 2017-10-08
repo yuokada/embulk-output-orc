@@ -58,3 +58,7 @@ out:
 ```
 $ ./gradlew gem  # -t to watch change of files and rebuild continuously
 ```
+
+## SonarQube
+
+[embulk-output-orc](https://sonarcloud.io/dashboard?id=embulk-output-orc "embulk-output-orc - Yukihiro Okada")
