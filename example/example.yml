@@ -1,41 +1,11 @@
-# in:
-#   type: file
-#   path_prefix: example/example.csv
-#   parser:
-#     type: csv
-#     charset: UTF-8
-#     newline: CRLF
-#     null_string: 'NULL'
-#     skip_header_lines: 1
-#     comment_line_marker: '#'
-#     columns:
-#       #- {name: time,  type: timestamp, format: "%Y-%m-%d"}
-#       - {name: id, type: long}
-#       - {name: name, type: string}
-#       - {name: score, type: double}
-#      - {name: json, type: json}
-#filters:
-#  - type: column
-#    columns:
-#      - {name: time, default: "2015-07-13", format: "%Y-%m-%d"}
-#      - {name: name, default: "foo"}
-#      - {name: foo,  default: 1, type: long}
-#      - {name: id}
-#      - {name: copy_score, src: score}
-#      - {name: json, default: "{\"foo\":\"FOO\"}"}
-#      - {name: $.json.foo}
-#      - {name: $.json.copy_foo, src: $.json.foo}
+---
 in:
- type: file
- path_prefix: example/sample.csv
- parser:
-   type: csv
-   charset: UTF-8
-   newline: CRLF
-   null_string: 'NULL'
-   skip_header_lines: 0
-   comment_line_marker: '#'
-   columns:
+  type: randomj
+  rows: 1024
+  threads: 1
+  # default_timezone: Asia/Tokyo
+  primary_key: myid
+  schema:
     - {name: myid,     type: long}
     - {name: named,    type: string}
     - {name: x_flag,   type: boolean}
@@ -44,12 +14,9 @@ in:
     - {name: time,     type: timestamp, format: '%Y-%m-%d %H:%M:%S'}
     - {name: purchase, type: timestamp, format: '%Y/%m/%d'}
 
-exec:
-  max_threads: 2         # run at most 8 tasks concurrently
-  min_output_tasks: 1    # disable page scattering
-
-#out:
-#  type: stdout
+#exec:
+#  max_threads: 6         # run at most 8 tasks concurrently
+#  min_output_tasks: 2    # disable page scattering
 
 out:
   type: orc
