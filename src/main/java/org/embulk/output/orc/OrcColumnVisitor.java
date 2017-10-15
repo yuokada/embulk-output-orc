@@ -33,7 +33,6 @@ public class OrcColumnVisitor
             ((LongColumnVector) batch.cols[column.getIndex()]).vector[i] = 0;
         }
         else {
-            // TODO; Fix all true bug
             if (reader.getBoolean(column)) {
                 ((LongColumnVector) batch.cols[column.getIndex()]).vector[i] = 1;
             }
@@ -72,7 +71,6 @@ public class OrcColumnVisitor
             Timestamp timestamp = reader.getTimestamp(column);
             java.sql.Timestamp ts = new java.sql.Timestamp(timestamp.getEpochSecond() * 1000);
             ((TimestampColumnVector) batch.cols[column.getIndex()]).set(i, ts);
-            // throw new UnsupportedOperationException("orc output plugin does not support timestamp yet");
         }
     }
 

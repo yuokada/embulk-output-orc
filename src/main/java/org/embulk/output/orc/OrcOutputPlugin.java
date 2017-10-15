@@ -320,19 +320,16 @@ public class OrcOutputPlugin
         @Override
         public void close()
         {
-            // TODO: something
         }
 
         @Override
         public void abort()
         {
-            // TODO: something
         }
 
         @Override
         public TaskReport commit()
         {
-            // TODO: something
             return Exec.newTaskReport();
         }
     }
