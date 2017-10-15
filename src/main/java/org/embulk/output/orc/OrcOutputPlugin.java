@@ -32,8 +32,6 @@ import org.embulk.spi.util.Timestamps;
 import org.embulk.util.aws.credentials.AwsCredentials;
 import org.embulk.util.aws.credentials.AwsCredentialsTask;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.List;
@@ -267,17 +265,11 @@ public class OrcOutputPlugin
     {
         private PageReader reader;
         private Writer writer;
-        private DateTimeFormatter formatter;
 
         public OrcTransactionalPageOutput(PageReader reader, Writer writer, PluginTask task)
         {
             this.reader = reader;
             this.writer = writer;
-
-            // formatter
-            DateTimeZone defaultTimeZone = DateTimeZone
-                    .forTimeZone(task.getDefaultFromTimeZone().toTimeZone());
-            formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(defaultTimeZone);
         }
 
         @Override
