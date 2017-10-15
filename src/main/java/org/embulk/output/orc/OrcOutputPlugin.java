@@ -228,7 +228,7 @@ public class OrcOutputPlugin
                             .version(OrcFile.Version.V_0_12));
         }
         catch (IOException e) {
-            e.printStackTrace();
+            Throwables.propagate(e);
         }
         return writer;
     }
@@ -301,7 +301,7 @@ public class OrcOutputPlugin
                 writer.addRowBatch(batch);
             }
             catch (IOException e) {
-                e.printStackTrace();
+                Throwables.propagate(e);
             }
         }
 

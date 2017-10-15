@@ -1,6 +1,5 @@
 package org.embulk.output.orc;
 
-import java.nio.charset.StandardCharsets;
 import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.LongColumnVector;
@@ -10,6 +9,8 @@ import org.embulk.spi.Column;
 import org.embulk.spi.ColumnVisitor;
 import org.embulk.spi.PageReader;
 import org.embulk.spi.time.Timestamp;
+
+import java.nio.charset.StandardCharsets;
 
 public class OrcColumnVisitor
         implements ColumnVisitor
@@ -69,10 +70,8 @@ public class OrcColumnVisitor
         }
         else {
             Timestamp timestamp = reader.getTimestamp(column);
-            if (!timestamp.equals("")) {
-                java.sql.Timestamp ts = new java.sql.Timestamp(timestamp.getEpochSecond() * 1000);
-                ((TimestampColumnVector) batch.cols[column.getIndex()]).set(i, ts);
-            }
+            java.sql.Timestamp ts = new java.sql.Timestamp(timestamp.getEpochSecond() * 1000);
+            ((TimestampColumnVector) batch.cols[column.getIndex()]).set(i, ts);
             // throw new UnsupportedOperationException("orc output plugin does not support timestamp yet");
         }
     }
