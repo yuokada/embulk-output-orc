@@ -263,8 +263,8 @@ public class OrcOutputPlugin
     class OrcTransactionalPageOutput
             implements TransactionalPageOutput
     {
-        private PageReader reader;
-        private Writer writer;
+        private final PageReader reader;
+        private final Writer writer;
 
         public OrcTransactionalPageOutput(PageReader reader, Writer writer, PluginTask task)
         {
@@ -276,14 +276,13 @@ public class OrcOutputPlugin
         public void add(Page page)
         {
             int size = page.getStringReferences().size();
-            TypeDescription schema = getSchema(reader.getSchema());
-            VectorizedRowBatch batch = schema.createRowBatch();
+            final TypeDescription schema = getSchema(reader.getSchema());
+            final VectorizedRowBatch batch = schema.createRowBatch();
             batch.size = size;
 
             reader.setPage(page);
             int i = 0;
             while (reader.nextRecord()) {
-                // batch.size = page.getStringReferences().size();
                 reader.getSchema().visitColumns(
                         new OrcColumnVisitor(reader, batch, i)
                 );
@@ -302,7 +301,6 @@ public class OrcOutputPlugin
         {
             try {
                 writer.close();
-                writer = null;
             }
             catch (IOException e) {
                 Throwables.propagate(e);
