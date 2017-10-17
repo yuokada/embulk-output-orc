@@ -15,9 +15,9 @@ import java.nio.charset.StandardCharsets;
 public class OrcColumnVisitor
         implements ColumnVisitor
 {
-    private PageReader reader;
-    private VectorizedRowBatch batch;
-    private Integer i;
+    private final PageReader reader;
+    private final VectorizedRowBatch batch;
+    private final Integer i;
 
     public OrcColumnVisitor(PageReader pageReader, VectorizedRowBatch rowBatch, Integer i)
     {
