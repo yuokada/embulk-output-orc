@@ -34,6 +34,7 @@ import org.embulk.util.aws.credentials.AwsCredentialsTask;
 import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -265,6 +266,7 @@ public class OrcOutputPlugin
     {
         private final PageReader reader;
         private final Writer writer;
+        private final ArrayList<VectorizedRowBatch> rowBatches = new ArrayList<>();
 
         public OrcTransactionalPageOutput(PageReader reader, Writer writer, PluginTask task)
         {
@@ -288,11 +290,8 @@ public class OrcOutputPlugin
                 );
                 i++;
             }
-            try {
-                writer.addRowBatch(batch);
-            }
-            catch (IOException e) {
-                Throwables.propagate(e);
+            synchronized (this) {
+                rowBatches.add(batch);
             }
         }
 
@@ -300,6 +299,9 @@ public class OrcOutputPlugin
         public void finish()
         {
             try {
+                for (VectorizedRowBatch batch : rowBatches) {
+                    writer.addRowBatch(batch);
+                }
                 writer.close();
             }
             catch (IOException e) {
