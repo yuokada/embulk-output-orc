@@ -28,7 +28,6 @@ import org.embulk.spi.util.Timestamps;
 import org.embulk.util.aws.credentials.AwsCredentials;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class OrcOutputPlugin
@@ -187,7 +186,6 @@ public class OrcOutputPlugin
     {
         private final PageReader reader;
         private final Writer writer;
-        private final ArrayList<VectorizedRowBatch> rowBatches = new ArrayList<>();
 
         public OrcTransactionalPageOutput(PageReader reader, Writer writer, PluginTask task)
         {
@@ -211,8 +209,12 @@ public class OrcOutputPlugin
                 );
                 i++;
             }
-            synchronized (this) {
-                rowBatches.add(batch);
+            try {
+                writer.addRowBatch(batch);
+                batch.reset();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -220,9 +222,6 @@ public class OrcOutputPlugin
         public void finish()
         {
             try {
-                for (VectorizedRowBatch batch : rowBatches) {
-                    writer.addRowBatch(batch);
-                }
                 writer.close();
             }
             catch (IOException e) {
