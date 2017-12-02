@@ -237,24 +237,7 @@ public class OrcOutputPlugin
         final Integer bufferSize = task.getBufferSize();
         final Integer stripSize = task.getStripSize();
         final String kindString = task.getCompressionKind();
-        CompressionKind kind;
-        switch (kindString) {
-            case "ZLIB":
-                kind = CompressionKind.ZLIB;
-                break;
-            case "SNAPPY":
-                kind = CompressionKind.SNAPPY;
-                break;
-            case "LZO":
-                kind = CompressionKind.LZO;
-                break;
-            case "LZ4":
-                kind = CompressionKind.LZ4;
-                break;
-            default:
-                kind = CompressionKind.NONE;
-                break;
-        }
+        CompressionKind kind = CompressionKind.valueOf(kindString);
         return OrcFile.writerOptions(conf).
                 bufferSize(bufferSize)
                 .stripeSize(stripSize)
