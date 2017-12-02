@@ -1,6 +1,5 @@
 package org.embulk.output.orc;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
@@ -12,11 +11,8 @@ import org.apache.orc.CompressionKind;
 import org.apache.orc.OrcFile;
 import org.apache.orc.TypeDescription;
 import org.apache.orc.Writer;
-import org.embulk.config.Config;
-import org.embulk.config.ConfigDefault;
 import org.embulk.config.ConfigDiff;
 import org.embulk.config.ConfigSource;
-import org.embulk.config.Task;
 import org.embulk.config.TaskReport;
 import org.embulk.config.TaskSource;
 import org.embulk.spi.Column;
@@ -30,72 +26,14 @@ import org.embulk.spi.time.TimestampFormatter;
 import org.embulk.spi.type.Type;
 import org.embulk.spi.util.Timestamps;
 import org.embulk.util.aws.credentials.AwsCredentials;
-import org.embulk.util.aws.credentials.AwsCredentialsTask;
-import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OrcOutputPlugin
         implements OutputPlugin
 {
-    public interface PluginTask
-            extends Task, TimestampFormatter.Task, AwsCredentialsTask
-    {
-        @Config("path_prefix")
-        String getPathPrefix();
-
-        @Config("file_ext")
-        @ConfigDefault("\".orc\"")
-        String getFileNameExtension();
-
-        @Config("column_options")
-        @ConfigDefault("{}")
-        Map<String, TimestampColumnOption> getColumnOptions();
-
-        @Config("sequence_format")
-        @ConfigDefault("\".%03d\"")
-        String getSequenceFormat();
-
-        // ORC File options
-        @Config("strip_size")
-        @ConfigDefault("100000")
-        Integer getStripSize();
-
-        @Config("buffer_size")
-        @ConfigDefault("10000")
-        Integer getBufferSize();
-
-        @Config("compression_kind")
-        @ConfigDefault("ZLIB")
-        public String getCompressionKind();
-
-        @Config("overwrite")
-        @ConfigDefault("false")
-        boolean getOverwrite();
-
-        @Config("default_from_timezone")
-        @ConfigDefault("\"UTC\"")
-        DateTimeZone getDefaultFromTimeZone();
-
-        @Config("endpoint")
-        @ConfigDefault("null")
-        Optional<String> getEndpoint();
-    }
-
-    public interface TimestampColumnOption
-            extends Task, TimestampFormatter.TimestampColumnOption
-    {
-        @Config("from_timezone")
-        @ConfigDefault("null")
-        Optional<DateTimeZone> getFromTimeZone();
-
-        @Config("from_format")
-        @ConfigDefault("null")
-        Optional<List<String>> getFromFormat();
-    }
 
     @Override
     public ConfigDiff transaction(ConfigSource config,
