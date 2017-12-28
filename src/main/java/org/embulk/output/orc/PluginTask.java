@@ -28,13 +28,14 @@ public interface PluginTask
     @ConfigDefault("\".%03d\"")
     String getSequenceFormat();
 
+    // see: https://orc.apache.org/docs/hive-config.html
     // ORC File options
     @Config("strip_size")
-    @ConfigDefault("100000")
+    @ConfigDefault("67108864") // 64MB
     Integer getStripSize();
 
     @Config("buffer_size")
-    @ConfigDefault("10000")
+    @ConfigDefault("262144") // 256KB
     Integer getBufferSize();
 
     @Config("block_size")
