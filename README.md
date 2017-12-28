@@ -36,13 +36,18 @@
 out:
   type: orc
   path_prefix: "/tmp/output"
-  buffer_size: 8000
-  strip_size:  90000
   compression_kind: ZLIB
   overwrite:   true
 ```
 
 ## ChangeLog
+
+### ver 0.3.0
+
+- Change default value : (block_size, buffer_size, strip_size)
+
+    - default value is Hive's default value.  
+      (see: https://orc.apache.org/docs/hive-config.html)
 
 ### ver 0.2.0
 
