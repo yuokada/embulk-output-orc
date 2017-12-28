@@ -16,8 +16,9 @@
   - support: `file`, `s3n` and `s3a`.
 - **file_ext**: An extension of output file. (string, default: `.orc`)
 - **sequence_format**: (string, default: `.%03d`)
-- **buffer_size**: Set the ORC buffer size (integer, default: `10000`)
-- **strip_size**: Set the ORC strip size (integer,  default: `100000`)
+- **buffer_size**: Set the ORC buffer size (integer, default: `262144`)
+- **strip_size**: Set the ORC strip size (integer,  default: `67108864`)
+- **block_size**: Set the ORC block size (integer, default: `268435456`)
 - **compression_kind**: description (string, default: `'ZLIB'`)
     - `NONE`, `ZLIB`, `SNAPPY`
 - **overwrite**: (LocalFileSystem only) Overwrite if output files already exist. (boolean, default: `false`)
