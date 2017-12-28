@@ -33,7 +33,6 @@ import java.util.List;
 public class OrcOutputPlugin
         implements OutputPlugin
 {
-
     @Override
     public ConfigDiff transaction(ConfigSource config,
             Schema schema, int taskCount,
