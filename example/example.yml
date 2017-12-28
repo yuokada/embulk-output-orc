@@ -1,7 +1,7 @@
 ---
 in:
   type: randomj
-  rows: 1024
+  rows: 1024000
   threads: 1
   # default_timezone: Asia/Tokyo
   primary_key: myid
@@ -14,14 +14,12 @@ in:
     - {name: time,     type: timestamp, format: '%Y-%m-%d %H:%M:%S'}
     - {name: purchase, type: timestamp, format: '%Y/%m/%d'}
 
-#exec:
-#  max_threads: 6         # run at most 8 tasks concurrently
-#  min_output_tasks: 2    # disable page scattering
+exec:
+  max_threads: 2         # run at most 8 tasks concurrently
+  min_output_tasks: 1    # disable page scattering
 
 out:
   type: orc
   overwrite:   true
   path_prefix: "/tmp/output"
-  buffer_size: 8000
-  strip_size:  90000
   compression_kind: ZLIB
