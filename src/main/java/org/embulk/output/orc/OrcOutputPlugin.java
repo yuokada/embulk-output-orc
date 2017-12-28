@@ -173,10 +173,12 @@ public class OrcOutputPlugin
     {
         final Integer bufferSize = task.getBufferSize();
         final Integer stripSize = task.getStripSize();
+        final Integer blockSize = task.getBlockSize();
         final String kindString = task.getCompressionKind();
         CompressionKind kind = CompressionKind.valueOf(kindString);
-        return OrcFile.writerOptions(conf).
-                bufferSize(bufferSize)
+        return OrcFile.writerOptions(conf)
+                .bufferSize(bufferSize)
+                .blockSize(blockSize)
                 .stripeSize(stripSize)
                 .compress(kind);
     }

@@ -37,6 +37,10 @@ public interface PluginTask
     @ConfigDefault("10000")
     Integer getBufferSize();
 
+    @Config("block_size")
+    @ConfigDefault("268435456") // 256MB
+    Integer getBlockSize();
+
     @Config("compression_kind")
     @ConfigDefault("ZLIB")
     public String getCompressionKind();
