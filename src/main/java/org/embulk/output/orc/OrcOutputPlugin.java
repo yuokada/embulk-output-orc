@@ -197,25 +197,32 @@ public class OrcOutputPlugin
         @Override
         public void add(Page page)
         {
-            int size = page.getStringReferences().size();
-            final TypeDescription schema = getSchema(reader.getSchema());
-            final VectorizedRowBatch batch = schema.createRowBatch();
-            batch.size = size;
+            synchronized (this) {
+                try {
+                    // int size = page.getStringReferences().size();
+                    final TypeDescription schema = getSchema(reader.getSchema());
+                    final VectorizedRowBatch batch = schema.createRowBatch();
+                    // batch.size = size;
 
-            reader.setPage(page);
-            int i = 0;
-            while (reader.nextRecord()) {
-                reader.getSchema().visitColumns(
-                        new OrcColumnVisitor(reader, batch, i)
-                );
-                i++;
-            }
-            try {
-                writer.addRowBatch(batch);
-                batch.reset();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+                    reader.setPage(page);
+                    while (reader.nextRecord()) {
+                        final int row = batch.size++;
+                        reader.getSchema().visitColumns(
+                                new OrcColumnVisitor(reader, batch, row)
+                        );
+                        if (batch.size >= batch.getMaxSize()) {
+                            writer.addRowBatch(batch);
+                            batch.reset();
+                        }
+                    }
+                    if (batch.size != 0) {
+                        writer.addRowBatch(batch);
+                        batch.reset();
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
