@@ -42,6 +42,10 @@ out:
 
 ## ChangeLog
 
+### ver 0.3.2
+
+- Update `orc` libraries to `1.4.3`
+
 ### ver 0.3.0
 
 - Change default value : (block_size, buffer_size, strip_size)
