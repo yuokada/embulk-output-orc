@@ -60,7 +60,6 @@ public class OrcOutputPlugin
     public void cleanup(TaskSource taskSource,
             Schema schema, int taskCount,
             List<TaskReport> successTaskReports)
-
     {
     }
 
@@ -137,6 +136,13 @@ public class OrcOutputPlugin
         }
         if (task.getEndpoint().isPresent()) {
             conf.set("fs.s3a.endpoint", task.getEndpoint().get());
+            conf.set("fs.s3n.endpoint", task.getEndpoint().get());
+            // NOTE: static setting
+            // https://github.com/minio/minio/issues/5232
+            // conf.set("fs.s3n.connection.ssl.enabled", "true");
+            // conf.set("fs.s3n.path.style.access", "true");
+            // conf.set("fs.s3n.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem");
+            // https://github.com/minio/cookbook/blob/master/docs/apache-spark-with-minio.md
         }
         return conf;
     }
@@ -158,9 +164,11 @@ public class OrcOutputPlugin
             OrcFile.WriterOptions writerOptions = createWriterOptions(task, conf);
             // see: https://stackoverflow.com/questions/9256733/how-to-connect-hive-in-ireport
             // see: https://community.hortonworks.com/content/kbentry/73458/connecting-dbvisualizer-and-datagrip-to-hive-with.html
-            writer = OrcFile.createWriter(new Path(buildPath(task, processorIndex)),
+            writer = OrcFile.createWriter(
+                    new Path(buildPath(task, processorIndex)),
                     writerOptions.setSchema(oschema)
-                            .version(OrcFile.Version.V_0_12));
+                            .version(OrcFile.Version.V_0_12)
+            );
         }
         catch (IOException e) {
             Throwables.propagate(e);
