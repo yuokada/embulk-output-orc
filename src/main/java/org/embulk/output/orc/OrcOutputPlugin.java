@@ -1,5 +1,6 @@
 package org.embulk.output.orc;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.google.common.base.Throwables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
@@ -69,7 +70,8 @@ public class OrcOutputPlugin
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
         if (task.getOverwrite()) {
-            OrcOutputPluginHelper.removeOldFile(buildPath(task, taskIndex));
+            AWSCredentials credentials = AwsCredentials.getAWSCredentialsProvider(task).getCredentials();
+            OrcOutputPluginHelper.removeOldFile(buildPath(task, taskIndex), task);
         }
 
         final PageReader reader = new PageReader(schema);
@@ -137,12 +139,6 @@ public class OrcOutputPlugin
         if (task.getEndpoint().isPresent()) {
             conf.set("fs.s3a.endpoint", task.getEndpoint().get());
             conf.set("fs.s3n.endpoint", task.getEndpoint().get());
-            // NOTE: static setting
-            // https://github.com/minio/minio/issues/5232
-            // conf.set("fs.s3n.connection.ssl.enabled", "true");
-            // conf.set("fs.s3n.path.style.access", "true");
-            // conf.set("fs.s3n.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem");
-            // https://github.com/minio/cookbook/blob/master/docs/apache-spark-with-minio.md
         }
         return conf;
     }
