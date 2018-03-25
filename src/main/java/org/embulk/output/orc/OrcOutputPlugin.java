@@ -1,5 +1,6 @@
 package org.embulk.output.orc;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.google.common.base.Throwables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
@@ -60,7 +61,6 @@ public class OrcOutputPlugin
     public void cleanup(TaskSource taskSource,
             Schema schema, int taskCount,
             List<TaskReport> successTaskReports)
-
     {
     }
 
@@ -70,7 +70,8 @@ public class OrcOutputPlugin
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
         if (task.getOverwrite()) {
-            OrcOutputPluginHelper.removeOldFile(buildPath(task, taskIndex));
+            AWSCredentials credentials = AwsCredentials.getAWSCredentialsProvider(task).getCredentials();
+            OrcOutputPluginHelper.removeOldFile(buildPath(task, taskIndex), task);
         }
 
         final PageReader reader = new PageReader(schema);
@@ -137,6 +138,7 @@ public class OrcOutputPlugin
         }
         if (task.getEndpoint().isPresent()) {
             conf.set("fs.s3a.endpoint", task.getEndpoint().get());
+            conf.set("fs.s3n.endpoint", task.getEndpoint().get());
         }
         return conf;
     }
@@ -158,9 +160,11 @@ public class OrcOutputPlugin
             OrcFile.WriterOptions writerOptions = createWriterOptions(task, conf);
             // see: https://stackoverflow.com/questions/9256733/how-to-connect-hive-in-ireport
             // see: https://community.hortonworks.com/content/kbentry/73458/connecting-dbvisualizer-and-datagrip-to-hive-with.html
-            writer = OrcFile.createWriter(new Path(buildPath(task, processorIndex)),
+            writer = OrcFile.createWriter(
+                    new Path(buildPath(task, processorIndex)),
                     writerOptions.setSchema(oschema)
-                            .version(OrcFile.Version.V_0_12));
+                            .version(OrcFile.Version.V_0_12)
+            );
         }
         catch (IOException e) {
             Throwables.propagate(e);
