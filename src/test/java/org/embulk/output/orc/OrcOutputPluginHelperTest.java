@@ -32,9 +32,9 @@ public class OrcOutputPluginHelperTest
     {
         return new Object[][] {
                 {"file", true},
-                {"s3", false},
-                {"s3n", false},
-                {"s3a", false},
+                {"s3", true},
+                {"s3n", true},
+                {"s3a", true},
                 {"hdfs", false},
                 };
     }
