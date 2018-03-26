@@ -20,8 +20,9 @@
 - **strip_size**: Set the ORC strip size (integer,  default: `67108864(64MB)` )
 - **block_size**: Set the ORC block size (integer, default: `268435456(256MB)`)
 - **compression_kind**: description (string, default: `'ZLIB'`)
-    - `NONE`, `ZLIB`, `SNAPPY`
-- **overwrite**: (LocalFileSystem only) Overwrite if output files already exist. (boolean, default: `false`)
+    - `NONE`, `ZLIB`, `SNAPPY`, `LZO`, `LZ4`
+- **overwrite**: Overwrite if output files already exist. (boolean, default: `false`)
+    - Support: `LocalFileSystem`, `S3(s3, s3a, s3n)`
 - **default_from_timezone** Time zone of timestamp columns. This can be overwritten for each column using column_options (DateTimeZone, default: `UTC`)
 
 - **auth_method**: name of mechanism to authenticate requests (basic, env, instance, profile, properties, anonymous, or session. default: basic)  
