@@ -1,0 +1,25 @@
+---
+in:
+  type: randomj
+  rows: 8
+  threads: 1
+  # default_timezone: Asia/Tokyo
+  primary_key: myid
+  schema:
+    - {name: myid,     type: long}
+    - {name: named,    type: string, null_rate: 10000}
+    - {name: x_flag,   type: boolean, null_rate: 10000}
+    - {name: pit_rate, type: double, null_rate: 10000}
+    - {name: score,    type: long, null_rate: 10000}
+    - {name: time,     type: timestamp, format: '%Y-%m-%d %H:%M:%S', null_rate: 10000}
+    - {name: purchase, type: timestamp, format: '%Y/%m/%d', null_rate: 10000}
+
+exec:
+  max_threads: 2         # run at most 8 tasks concurrently
+  min_output_tasks: 1    # disable page scattering
+
+out:
+  type: orc
+  overwrite:   true
+  path_prefix: "/tmp/output"
+  compression_kind: ZLIB
