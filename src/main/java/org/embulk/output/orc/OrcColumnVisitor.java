@@ -30,7 +30,8 @@ public class OrcColumnVisitor
     public void booleanColumn(Column column)
     {
         if (reader.isNull(column)) {
-            ((LongColumnVector) batch.cols[column.getIndex()]).vector[i] = 0;
+            batch.cols[column.getIndex()].noNulls = false;
+            batch.cols[column.getIndex()].isNull[i] = true;
         }
         else {
             if (reader.getBoolean(column)) {
@@ -45,20 +46,38 @@ public class OrcColumnVisitor
     @Override
     public void longColumn(Column column)
     {
-        ((LongColumnVector) batch.cols[column.getIndex()]).vector[i] = reader.getLong(column);
+        if (reader.isNull(column)) {
+            batch.cols[column.getIndex()].noNulls = false;
+            batch.cols[column.getIndex()].isNull[i] = true;
+        }
+        else {
+            ((LongColumnVector) batch.cols[column.getIndex()]).vector[i] = reader.getLong(column);
+        }
     }
 
     @Override
     public void doubleColumn(Column column)
     {
-        ((DoubleColumnVector) batch.cols[column.getIndex()]).vector[i] = reader.getDouble(column);
+        if (reader.isNull(column)) {
+            batch.cols[column.getIndex()].noNulls = false;
+            batch.cols[column.getIndex()].isNull[i] = true;
+        }
+        else {
+            ((DoubleColumnVector) batch.cols[column.getIndex()]).vector[i] = reader.getDouble(column);
+        }
     }
 
     @Override
     public void stringColumn(Column column)
     {
-        ((BytesColumnVector) batch.cols[column.getIndex()]).setVal(i,
-                reader.getString(column).getBytes(StandardCharsets.UTF_8));
+        if (!reader.isNull(column)) {
+            ((BytesColumnVector) batch.cols[column.getIndex()])
+                    .setVal(i, reader.getString(column).getBytes(StandardCharsets.UTF_8));
+        }
+        else {
+            batch.cols[column.getIndex()].noNulls = false;
+            batch.cols[column.getIndex()].isNull[i] = true;
+        }
     }
 
     @Override
