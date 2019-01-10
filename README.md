@@ -43,6 +43,11 @@ out:
 
 ## ChangeLog
 
+### ver 0.3.3
+
+- bugfix
+- Bump `orc` library to `1.4.4`
+
 ### ver 0.3.2
 
 - Update `orc` libraries to `1.4.3`
