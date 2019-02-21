@@ -8,7 +8,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
 import org.apache.hadoop.util.VersionInfo;
-import org.apache.orc.*;
+import org.apache.orc.CompressionKind;
+import org.apache.orc.MemoryManager;
+import org.apache.orc.OrcFile;
+import org.apache.orc.TypeDescription;
+import org.apache.orc.Writer;
 import org.embulk.config.ConfigDiff;
 import org.embulk.config.ConfigSource;
 import org.embulk.config.TaskReport;
@@ -258,14 +262,16 @@ public class OrcOutputPlugin
     // Embulk creates and uses multiple instances of TransactionalPageOutput in worker threads.
     // As a workaround, WriterLocalMemoryManager is bound to a single orc.Writer instance, and
     // notifies checkMemory() only to that instance.
-    private static class WriterLocalMemoryManager implements MemoryManager {
-        final long ROWS_BETWEEN_CHECKS = 10000;
+    private static class WriterLocalMemoryManager implements MemoryManager
+    {
+        final long rowsBetweenChecks = 10000;
 
         private int rowsAddedSinceCheck = 0;
         Callback boundCallback = null;
 
         @Override
-        public void addWriter(Path path, long requestedAllocation, Callback callback) throws IOException {
+        public void addWriter(Path path, long requestedAllocation, Callback callback) throws IOException
+        {
             if (boundCallback != null) {
                 throw new IllegalStateException("WriterLocalMemoryManager should be bound to a single orc.Writer instance.");
             }
@@ -273,16 +279,17 @@ public class OrcOutputPlugin
             boundCallback = callback;
         }
 
-
         @Override
-        public void removeWriter(Path path) throws IOException {
+        public void removeWriter(Path path) throws IOException
+        {
             boundCallback = null;
         }
 
         @Override
-        public void addedRow(int rows) throws IOException {
+        public void addedRow(int rows) throws IOException
+        {
             rowsAddedSinceCheck += rows;
-            if (rowsAddedSinceCheck > ROWS_BETWEEN_CHECKS) {
+            if (rowsAddedSinceCheck > rowsBetweenChecks) {
                 boundCallback.checkMemory(1);
                 rowsAddedSinceCheck = 0;
             }
