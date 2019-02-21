@@ -8,10 +8,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
 import org.apache.hadoop.util.VersionInfo;
-import org.apache.orc.CompressionKind;
-import org.apache.orc.OrcFile;
-import org.apache.orc.TypeDescription;
-import org.apache.orc.Writer;
+import org.apache.orc.*;
 import org.embulk.config.ConfigDiff;
 import org.embulk.config.ConfigSource;
 import org.embulk.config.TaskReport;
@@ -163,6 +160,7 @@ public class OrcOutputPlugin
             writer = OrcFile.createWriter(
                     new Path(buildPath(task, processorIndex)),
                     writerOptions.setSchema(oschema)
+                            .memory(new WriterLocalMemoryManager())
                             .version(OrcFile.Version.V_0_12)
             );
         }
@@ -201,32 +199,30 @@ public class OrcOutputPlugin
         @Override
         public void add(Page page)
         {
-            synchronized (this) {
-                try {
-                    // int size = page.getStringReferences().size();
-                    final TypeDescription schema = getSchema(reader.getSchema());
-                    final VectorizedRowBatch batch = schema.createRowBatch();
-                    // batch.size = size;
+            try {
+                // int size = page.getStringReferences().size();
+                final TypeDescription schema = getSchema(reader.getSchema());
+                final VectorizedRowBatch batch = schema.createRowBatch();
+                // batch.size = size;
 
-                    reader.setPage(page);
-                    while (reader.nextRecord()) {
-                        final int row = batch.size++;
-                        reader.getSchema().visitColumns(
-                                new OrcColumnVisitor(reader, batch, row)
-                        );
-                        if (batch.size >= batch.getMaxSize()) {
-                            writer.addRowBatch(batch);
-                            batch.reset();
-                        }
-                    }
-                    if (batch.size != 0) {
+                reader.setPage(page);
+                while (reader.nextRecord()) {
+                    final int row = batch.size++;
+                    reader.getSchema().visitColumns(
+                            new OrcColumnVisitor(reader, batch, row)
+                    );
+                    if (batch.size >= batch.getMaxSize()) {
                         writer.addRowBatch(batch);
                         batch.reset();
                     }
                 }
-                catch (IOException e) {
-                    e.printStackTrace();
+                if (batch.size != 0) {
+                    writer.addRowBatch(batch);
+                    batch.reset();
                 }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -255,6 +251,41 @@ public class OrcOutputPlugin
         public TaskReport commit()
         {
             return Exec.newTaskReport();
+        }
+    }
+
+    // We avoid using orc.MemoryManagerImpl since it is not threadsafe, but embulk is multi-threaded.
+    // Embulk creates and uses multiple instances of TransactionalPageOutput in worker threads.
+    // As a workaround, WriterLocalMemoryManager is bound to a single orc.Writer instance, and
+    // notifies checkMemory() only to that instance.
+    private static class WriterLocalMemoryManager implements MemoryManager {
+        final long ROWS_BETWEEN_CHECKS = 10000;
+
+        private int rowsAddedSinceCheck = 0;
+        Callback boundCallback = null;
+
+        @Override
+        public void addWriter(Path path, long requestedAllocation, Callback callback) throws IOException {
+            if (boundCallback != null) {
+                throw new IllegalStateException("WriterLocalMemoryManager should be bound to a single orc.Writer instance.");
+            }
+
+            boundCallback = callback;
+        }
+
+
+        @Override
+        public void removeWriter(Path path) throws IOException {
+            boundCallback = null;
+        }
+
+        @Override
+        public void addedRow(int rows) throws IOException {
+            rowsAddedSinceCheck += rows;
+            if (rowsAddedSinceCheck > ROWS_BETWEEN_CHECKS) {
+                boundCallback.checkMemory(1);
+                rowsAddedSinceCheck = 0;
+            }
         }
     }
 }
