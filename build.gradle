@@ -27,8 +27,8 @@ dependencies {
     compile  "org.embulk:embulk-core:0.8.34"
     provided "org.embulk:embulk-core:0.8.34"
 
-    compile "org.apache.orc:orc:1.4.4"
-    compile "org.apache.orc:orc-core:1.4.4"
+    compile "org.apache.orc:orc:1.5.4"
+    compile "org.apache.orc:orc-core:1.5.4"
     compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
     compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
