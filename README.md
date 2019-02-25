@@ -43,6 +43,12 @@ out:
 
 ## ChangeLog
 
+### ver 0.3.4
+
+- Bump `orc` library to `1.5.4`
+- bugfix
+  - https://github.com/yuokada/embulk-output-orc/pull/17
+
 ### ver 0.3.3
 
 - bugfix
