@@ -6,7 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
 import org.apache.hadoop.util.VersionInfo;
 import org.apache.orc.CompressionKind;
 import org.apache.orc.MemoryManager;
@@ -20,7 +19,6 @@ import org.embulk.config.TaskSource;
 import org.embulk.spi.Column;
 import org.embulk.spi.Exec;
 import org.embulk.spi.OutputPlugin;
-import org.embulk.spi.Page;
 import org.embulk.spi.PageReader;
 import org.embulk.spi.Schema;
 import org.embulk.spi.TransactionalPageOutput;
@@ -89,7 +87,7 @@ public class OrcOutputPlugin
         return pathPrefix + String.format(sequenceFormat, processorIndex) + pathSuffix;
     }
 
-    private TypeDescription getSchema(Schema schema)
+    static TypeDescription getSchema(Schema schema)
     {
         TypeDescription oschema = TypeDescription.createStruct();
         for (int i = 0; i < schema.size(); i++) {
@@ -188,81 +186,12 @@ public class OrcOutputPlugin
                 .compress(kind);
     }
 
-    class OrcTransactionalPageOutput
-            implements TransactionalPageOutput
-    {
-        private final PageReader reader;
-        private final Writer writer;
-
-        public OrcTransactionalPageOutput(PageReader reader, Writer writer, PluginTask task)
-        {
-            this.reader = reader;
-            this.writer = writer;
-        }
-
-        @Override
-        public void add(Page page)
-        {
-            try {
-                // int size = page.getStringReferences().size();
-                final TypeDescription schema = getSchema(reader.getSchema());
-                final VectorizedRowBatch batch = schema.createRowBatch();
-                // batch.size = size;
-
-                reader.setPage(page);
-                while (reader.nextRecord()) {
-                    final int row = batch.size++;
-                    reader.getSchema().visitColumns(
-                            new OrcColumnVisitor(reader, batch, row)
-                    );
-                    if (batch.size >= batch.getMaxSize()) {
-                        writer.addRowBatch(batch);
-                        batch.reset();
-                    }
-                }
-                if (batch.size != 0) {
-                    writer.addRowBatch(batch);
-                    batch.reset();
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void finish()
-        {
-            try {
-                writer.close();
-            }
-            catch (IOException e) {
-                Throwables.propagate(e);
-            }
-        }
-
-        @Override
-        public void close()
-        {
-        }
-
-        @Override
-        public void abort()
-        {
-        }
-
-        @Override
-        public TaskReport commit()
-        {
-            return Exec.newTaskReport();
-        }
-    }
-
     // We avoid using orc.MemoryManagerImpl since it is not threadsafe, but embulk is multi-threaded.
     // Embulk creates and uses multiple instances of TransactionalPageOutput in worker threads.
     // As a workaround, WriterLocalMemoryManager is bound to a single orc.Writer instance, and
     // notifies checkMemory() only to that instance.
-    private static class WriterLocalMemoryManager implements MemoryManager
+    private static class WriterLocalMemoryManager
+            implements MemoryManager
     {
         final long rowsBetweenChecks = 10000;
 
@@ -270,7 +199,8 @@ public class OrcOutputPlugin
         Callback boundCallback = null;
 
         @Override
-        public void addWriter(Path path, long requestedAllocation, Callback callback) throws IOException
+        public void addWriter(Path path, long requestedAllocation, Callback callback)
+                throws IOException
         {
             if (boundCallback != null) {
                 throw new IllegalStateException("WriterLocalMemoryManager should be bound to a single orc.Writer instance.");
@@ -280,13 +210,15 @@ public class OrcOutputPlugin
         }
 
         @Override
-        public void removeWriter(Path path) throws IOException
+        public void removeWriter(Path path)
+                throws IOException
         {
             boundCallback = null;
         }
 
         @Override
-        public void addedRow(int rows) throws IOException
+        public void addedRow(int rows)
+                throws IOException
         {
             rowsAddedSinceCheck += rows;
             if (rowsAddedSinceCheck > rowsBetweenChecks) {
