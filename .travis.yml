@@ -1,6 +1,7 @@
 language: java
 jdk:
-  - oraclejdk8
+  # - oraclejdk8
+  - openjdk8
 
 cache:
   directories:  # run "travis cache --delete" to delete caches
