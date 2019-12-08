@@ -18,8 +18,7 @@ object OrcOutputPluginHelper {
       case "file" =>
         try Files.deleteIfExists(Paths.get(fpath))
         catch {
-          case e: IOException =>
-            Throwables.propagate(e)
+          case e: IOException => Throwables.throwIfUnchecked(e)
         }
       case "s3" | "s3n" | "s3a" =>
         val s3Url = parseS3Url(fpath)

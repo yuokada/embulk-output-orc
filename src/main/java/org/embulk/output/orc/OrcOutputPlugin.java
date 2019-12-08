@@ -167,7 +167,7 @@ public class OrcOutputPlugin
             );
         }
         catch (IOException e) {
-            Throwables.propagate(e);
+            Throwables.throwIfUnchecked(e);
         }
         return writer;
     }
