@@ -18,8 +18,7 @@ object OrcOutputPluginHelper {
       case "file" =>
         try Files.deleteIfExists(Paths.get(fpath))
         catch {
-          case e: IOException =>
-            Throwables.propagate(e)
+          case e: IOException => Throwables.throwIfUnchecked(e)
         }
       case "s3" | "s3n" | "s3a" =>
         val s3Url = parseS3Url(fpath)
@@ -36,8 +35,8 @@ object OrcOutputPluginHelper {
     case _ => false
   }
 
-  def getSchema(fpath: String) = {
-    val schema = fpath.split("://").toList.apply(0)
+  def getSchema(fpath: String): String = {
+    val schema = fpath.split("://").toList.head
     schema match {
       case "s3" | "s3a" | "s3n" => schema
       case _ => {
@@ -47,7 +46,7 @@ object OrcOutputPluginHelper {
     }
   }
 
-  def parseS3Url(s3url: String) = {
+  def parseS3Url(s3url: String): AmazonS3URILikeObject = {
     val parts = s3url.split("(://|/)").toList
     val bucket = parts.apply(1)
     val key = parts.slice(2, parts.size).mkString("/")
@@ -55,4 +54,5 @@ object OrcOutputPluginHelper {
   }
 
   case class AmazonS3URILikeObject(@BeanProperty bucket: String, @BeanProperty key: String)
+
 }
