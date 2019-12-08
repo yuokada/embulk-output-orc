@@ -1,6 +1,6 @@
 # Orc output plugin for Embulk
 
-[![Build Status](https://travis-ci.org/yuokada/embulk-output-orc.svg?branch=master)](https://travis-ci.org/yuokada/embulk-output-orc)
+[![Build Status](https://github.com/yuokada/embulk-output-orc/workflows/Java%20CI/badge.svg)](https://github.com/yuokada/embulk-output-orc/actions)
 [![Gem Version](https://badge.fury.io/rb/embulk-output-orc.svg)](https://badge.fury.io/rb/embulk-output-orc)
 
 ## Overview
