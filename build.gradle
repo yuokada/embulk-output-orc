@@ -17,7 +17,9 @@ repositories {
 }
 configurations {
     provided
-    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
+    // e.g: compile.exclude group: 'commons-logging', module: 'commons-logging'   // commons-logging api is provided by jcl-over-slf4j
+    //    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
+    runtime.exclude group: 'xml-apis', module: 'xml-apis'
 }
 
 version = "0.3.5"
@@ -34,8 +36,10 @@ dependencies {
     compile "org.apache.orc:orc-core:1.5.4"
     compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
-    compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
-    compile "com.amazonaws:aws-java-sdk-s3:1.10.33"
+    compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.3.5'
+
+    compile "com.amazonaws:aws-java-sdk:1.10.77"
+    compile "com.amazonaws:aws-java-sdk-s3:1.10.77"
     compile "org.apache.hadoop:hadoop-aws:2.7.5"
 
     testCompile 'org.jmockit:jmockit:1.38'
