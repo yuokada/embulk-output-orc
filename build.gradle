@@ -20,7 +20,7 @@ configurations {
     runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
 }
 
-def EMBULK_VERSION = "0.8.39"
+def EMBULK_VERSION = "0.9.23"
 
 version = "0.3.4"
 
