@@ -1,26 +1,28 @@
 plugins {
-    id "com.jfrog.bintray" version "1.1"
-    id "com.github.jruby-gradle.base" version "1.5.0"
-    id "java"
-    id "scala"
-    id "checkstyle"
+  id "com.jfrog.bintray" version "1.1"
+  id "com.github.jruby-gradle.base" version "1.5.0"
+  id "java"
+  id "scala"
+  id "checkstyle"
 //    id "com.github.spotbugs" version "3.0.1"
-    id "org.sonarqube" version "2.5"
+  id "org.sonarqube" version "2.5"
 }
 import com.github.jrubygradle.JRubyExec
+
 repositories {
-    mavenCentral()
-    jcenter()
-    maven {
-        url "http://dl.bintray.com/embulk-input-s3/maven"
-    }
+  mavenCentral()
+  jcenter()
+  maven {
+    url "http://dl.bintray.com/embulk-input-s3/maven"
+  }
 }
 configurations {
-    provided
-    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
+  provided
+  runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
 }
 
 def EMBULK_VERSION = "0.9.23"
+def ORC_VERSION = "1.5.10"
 
 version = "0.3.4"
 
@@ -28,87 +30,88 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile  "org.embulk:embulk-core:$EMBULK_VERSION"
-    provided "org.embulk:embulk-core:$EMBULK_VERSION"
-    compile  "org.scala-lang:scala-library:2.12.+"
+  compile "org.embulk:embulk-core:$EMBULK_VERSION"
+  provided "org.embulk:embulk-core:$EMBULK_VERSION"
+  compile "org.scala-lang:scala-library:2.12.+"
 
-    compile "org.apache.orc:orc:1.5.4"
-    compile "org.apache.orc:orc-core:1.5.4"
-    compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
+  compile "org.apache.orc:orc:$ORC_VERSION"
+  compile "org.apache.orc:orc-core:$ORC_VERSION"
+  compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
-    compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
-    compile "com.amazonaws:aws-java-sdk-s3:1.10.33"
-    compile "org.apache.hadoop:hadoop-aws:2.7.5"
-    compile 'com.google.guava:guava:24.1-jre'
+  compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
+  compile "com.amazonaws:aws-java-sdk-s3:1.10.33"
+  compile "org.apache.hadoop:hadoop-aws:2.7.5"
+  compile 'com.google.guava:guava:24.1-jre'
 
-    testCompile 'org.jmockit:jmockit:1.38'
-    // testCompile "junit:junit:4.+"
-    testCompile 'org.hamcrest:hamcrest-core:1.3'
-    testCompile 'org.testng:testng:6.14.2'
-    testCompile "org.embulk:embulk-core:$EMBULK_VERSION:tests"
-    testCompile "org.embulk:embulk-standards:$EMBULK_VERSION"
+  testCompile 'org.jmockit:jmockit:1.38'
+  // testCompile "junit:junit:4.+"
+  testCompile 'org.hamcrest:hamcrest-core:1.3'
+  testCompile 'org.testng:testng:6.14.2'
+  testCompile "org.embulk:embulk-core:$EMBULK_VERSION:tests"
+  testCompile "org.embulk:embulk-standards:$EMBULK_VERSION"
 }
 
 sourceSets {
-    main {
-        scala {
-            srcDirs = ['src/main/scala', 'src/main/java']
-        }
-        java {
-            srcDirs = []
-        }
+  main {
+    scala {
+      srcDirs = ['src/main/scala', 'src/main/java']
     }
+    java {
+      srcDirs = []
+    }
+  }
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {
-    doFirst { file("classpath").deleteDir() }
-    from (configurations.runtime - configurations.provided + files(jar.archivePath))
-    into "classpath"
+  doFirst { file("classpath").deleteDir() }
+  from(configurations.runtime - configurations.provided + files(jar.archivePath))
+  into "classpath"
 }
 clean { delete "classpath" }
 
 checkstyle {
-    configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
-    toolVersion = '6.14.1'
+  configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+  toolVersion = '6.14.1'
 }
 checkstyleMain {
-    configFile = file("${project.rootDir}/config/checkstyle/default.xml")
-    ignoreFailures = true
+  configFile = file("${project.rootDir}/config/checkstyle/default.xml")
+  ignoreFailures = true
 }
 checkstyleTest {
-    configFile = file("${project.rootDir}/config/checkstyle/default.xml")
-    ignoreFailures = true
+  configFile = file("${project.rootDir}/config/checkstyle/default.xml")
+  ignoreFailures = true
 }
 task checkstyle(type: Checkstyle) {
-    classpath = sourceSets.main.output + sourceSets.test.output
-    source = sourceSets.main.allJava + sourceSets.test.allJava
+  classpath = sourceSets.main.output + sourceSets.test.output
+  source = sourceSets.main.allJava + sourceSets.test.allJava
 }
 
 task gem(type: JRubyExec, dependsOn: ["gemspec", "classpath"]) {
-    jrubyArgs "-S"
-    script "gem"
-    scriptArgs "build", "${project.name}.gemspec"
-    doLast { ant.move(file: "${project.name}-${project.version}.gem", todir: "pkg") }
+  jrubyArgs "-S"
+  script "gem"
+  scriptArgs "build", "${project.name}.gemspec"
+  doLast { ant.move(file: "${project.name}-${project.version}.gem", todir: "pkg") }
 }
 
 task gemPush(type: JRubyExec, dependsOn: ["gem"]) {
-    jrubyArgs "-S"
-    script "gem"
-    scriptArgs "push", "pkg/${project.name}-${project.version}.gem"
+  jrubyArgs "-S"
+  script "gem"
+  scriptArgs "push", "pkg/${project.name}-${project.version}.gem"
 }
 
 task "package"(dependsOn: ["gemspec", "classpath"]) {
-    doLast {
-        println "> Build succeeded."
-        println "> You can run embulk with '-L ${file(".").absolutePath}' argument."
-    }
+  doLast {
+    println "> Build succeeded."
+    println "> You can run embulk with '-L ${file(".").absolutePath}' argument."
+  }
 }
 
 task gemspec {
-    ext.gemspecFile = file("${project.name}.gemspec")
-    inputs.file "build.gradle"
-    outputs.file gemspecFile
-    doLast { gemspecFile.write($/
+  ext.gemspecFile = file("${project.name}.gemspec")
+  inputs.file "build.gradle"
+  outputs.file gemspecFile
+  doLast {
+    gemspecFile.write($/
 Gem::Specification.new do |spec|
   spec.name          = "${project.name}"
   spec.version       = "${project.version}"
@@ -128,6 +131,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', ['>= 10.0']
 end
 /$)
-    }
+  }
 }
 clean { delete "${project.name}.gemspec" }
