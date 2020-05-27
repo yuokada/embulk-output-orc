@@ -39,7 +39,7 @@ dependencies {
   compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
   compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
-  compile "com.amazonaws:aws-java-sdk-s3:1.10.33"
+  compile "com.amazonaws:aws-java-sdk-s3:1.11.790"
   compile "org.apache.hadoop:hadoop-aws:2.7.5"
   compile 'com.google.guava:guava:24.1-jre'
 
