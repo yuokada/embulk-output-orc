@@ -41,8 +41,8 @@ dependencies {
 
     compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.3.5'
     compile "com.amazonaws:aws-java-sdk-s3:1.11.831"
-//    compile "org.apache.hadoop:hadoop-aws:2.7.5"
-    compile 'com.google.guava:guava:24.1-jre'
+    compile "org.apache.hadoop:hadoop-aws:2.7.5"
+    compile 'com.google.guava:guava:26.0-jre'
 
     testCompile 'org.jmockit:jmockit:1.38'
     // testCompile "junit:junit:4.+"

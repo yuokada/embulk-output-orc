@@ -3,8 +3,10 @@ package org.embulk.output.orc
 import java.io.IOException
 import java.util
 
+import com.amazonaws.auth.InstanceProfileCredentialsProvider
 import com.google.common.base.Throwables
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.s3a.S3AFileSystem
 import org.apache.hadoop.fs.{LocalFileSystem, Path}
 import org.apache.hadoop.hdfs.DistributedFileSystem
 import org.apache.hadoop.util.VersionInfo
@@ -110,16 +112,29 @@ class OrcOutputPlugin extends OutputPlugin {
     // see: https://stackoverflow.com/questions/17265002/hadoop-no-filesystem-for-scheme-file
     conf.set("fs.hdfs.impl", classOf[DistributedFileSystem].getName)
     conf.set("fs.file.impl", classOf[LocalFileSystem].getName)
+
+    // TODO: NOW WORKING
+    conf.set("fs.s3a.aws.credentials.provider", classOf[InstanceProfileCredentialsProvider].getName)
+    conf.set("fs.s3a.impl", classOf[S3AFileSystem].getName)
     // see: https://stackoverflow.com/questions/20833444/how-to-set-objects-in-hadoop-configuration
-    AwsCredentials.getAWSCredentialsProvider(task)
-    if (task.getAccessKeyId.isPresent) {
-      conf.set("fs.s3a.access.key", task.getAccessKeyId.get)
-      conf.set("fs.s3n.awsAccessKeyId", task.getAccessKeyId.get)
+    val credentials = AwsCredentials.getAWSCredentialsProvider(task).getCredentials
+    if (credentials.getAWSAccessKeyId.nonEmpty) {
+      conf.set("fs.s3a.access.key", credentials.getAWSAccessKeyId)
+      conf.set("fs.s3n.awsAccessKeyId", credentials.getAWSAccessKeyId)
     }
-    if (task.getSecretAccessKey.isPresent) {
-      conf.set("fs.s3a.secret.key", task.getSecretAccessKey.get)
-      conf.set("fs.s3n.awsSecretAccessKey", task.getSecretAccessKey.get)
+    if (credentials.getAWSSecretKey.nonEmpty) {
+      conf.set("fs.s3a.secret.key", credentials.getAWSSecretKey)
+      conf.set("fs.s3n.awsSecretAccessKey", credentials.getAWSSecretKey)
     }
+
+    //    if (task.getAccessKeyId.isPresent) {
+    //      conf.set("fs.s3a.access.key", task.getAccessKeyId.get)
+    //      conf.set("fs.s3n.awsAccessKeyId", task.getAccessKeyId.get)
+    //    }
+    //    if (task.getSecretAccessKey.isPresent) {
+    //      conf.set("fs.s3a.secret.key", task.getSecretAccessKey.get)
+    //      conf.set("fs.s3n.awsSecretAccessKey", task.getSecretAccessKey.get)
+    //    }
     if (task.getEndpoint.isPresent) {
       conf.set("fs.s3a.endpoint", task.getEndpoint.get)
       conf.set("fs.s3n.endpoint", task.getEndpoint.get)
@@ -139,10 +154,14 @@ class OrcOutputPlugin extends OutputPlugin {
       val writerOptions = createWriterOptions(task, conf)
       // see: https://stackoverflow.com/questions/9256733/how-to-connect-hive-in-ireport
       // see: https://community.hortonworks.com/content/kbentry/73458/connecting-dbvisualizer-and-datagrip-to-hive-with.html
+      val p: Path = new Path(buildPath(task, processorIndex))
+      val wo = writerOptions.setSchema(oschema).memory(new OrcOutputPlugin.WriterLocalMemoryManager).version(OrcFile.Version.V_0_12)
       writer = OrcFile.createWriter(new Path(buildPath(task, processorIndex)), writerOptions.setSchema(oschema).memory(new OrcOutputPlugin.WriterLocalMemoryManager).version(OrcFile.Version.V_0_12))
     } catch {
-      case e: IOException =>
-        Throwables.throwIfUnchecked(e)
+      //      case e: IOException =>
+      //        Throwables.throwIfUnchecked(e)
+      case e: IOException => throw e
+      //        Throwables.throwIfUnchecked(e)
     }
     writer
   }
