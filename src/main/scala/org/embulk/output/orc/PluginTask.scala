@@ -40,11 +40,11 @@ trait PluginTask extends Task with TimestampFormatter.Task with AwsCredentialsTa
 
   @Config("compression_kind")
   @ConfigDefault("ZLIB")
-  def getCompressionKind: java.lang.String
+  def getCompressionKind: String
 
   @Config("overwrite")
   @ConfigDefault("false")
-  def getOverwrite: java.lang.Boolean
+  def getOverwrite: Boolean
 
   @Config("default_from_timezone")
   @ConfigDefault("\"UTC\"")
