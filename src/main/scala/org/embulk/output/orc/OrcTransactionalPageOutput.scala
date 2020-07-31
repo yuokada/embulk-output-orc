@@ -2,7 +2,6 @@ package org.embulk.output.orc
 
 import java.io.IOException
 
-import com.google.common.base.Throwables
 import org.apache.orc.Writer
 import org.embulk.config.TaskReport
 import org.embulk.spi.{Exec, Page, PageReader, TransactionalPageOutput}
@@ -41,7 +40,7 @@ class OrcTransactionalPageOutput(val reader: PageReader, val writer: Writer, val
   override def finish(): Unit = {
     try writer.close()
     catch {
-      case e: IOException => Throwables.throwIfUnchecked(e)
+      case e: IOException => throw e
     }
   }
 

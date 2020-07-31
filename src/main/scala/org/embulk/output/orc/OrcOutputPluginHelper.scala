@@ -6,7 +6,6 @@ import java.nio.file.{Files, Paths}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.DeleteObjectRequest
-import com.google.common.base.Throwables
 
 import scala.beans.BeanProperty
 
@@ -18,7 +17,7 @@ object OrcOutputPluginHelper {
       case "file" =>
         try Files.deleteIfExists(Paths.get(fpath))
         catch {
-          case e: IOException => Throwables.throwIfUnchecked(e)
+          case e: IOException => throw e
         }
       case "s3" | "s3n" | "s3a" =>
         val s3Url = parseS3Url(fpath)

@@ -3,15 +3,14 @@ package org.embulk.output.orc
 import java.io.IOException
 import java.util
 
-import com.google.common.base.Throwables
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{LocalFileSystem, Path}
 import org.apache.hadoop.hdfs.DistributedFileSystem
 import org.apache.hadoop.util.VersionInfo
 import org.apache.orc.{CompressionKind, MemoryManager, OrcFile, TypeDescription, Writer}
 import org.embulk.config.{ConfigSource, TaskReport, TaskSource}
-import org.embulk.spi.{Exec, OutputPlugin, PageReader, Schema}
 import org.embulk.spi.util.Timestamps
+import org.embulk.spi.{Exec, OutputPlugin, PageReader, Schema}
 import org.embulk.util.aws.credentials.AwsCredentials
 
 object OrcOutputPlugin {
@@ -141,8 +140,7 @@ class OrcOutputPlugin extends OutputPlugin {
       // see: https://community.hortonworks.com/content/kbentry/73458/connecting-dbvisualizer-and-datagrip-to-hive-with.html
       writer = OrcFile.createWriter(new Path(buildPath(task, processorIndex)), writerOptions.setSchema(oschema).memory(new OrcOutputPlugin.WriterLocalMemoryManager).version(OrcFile.Version.V_0_12))
     } catch {
-      case e: IOException =>
-        Throwables.throwIfUnchecked(e)
+      case e: IOException => throw e
     }
     writer
   }
