@@ -26,8 +26,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile  "org.embulk:embulk-core:0.8.39"
-    provided "org.embulk:embulk-core:0.8.39"
+    compile  "org.embulk:embulk-core:0.9.23"
+    provided "org.embulk:embulk-core:0.9.23"
     compile  "org.scala-lang:scala-library:2.12.+"
 
     compile "org.apache.orc:orc:1.5.4"
@@ -37,7 +37,6 @@ dependencies {
     compile 'org.embulk.input.s3:embulk-util-aws-credentials:0.2.8'
     compile "com.amazonaws:aws-java-sdk-s3:1.10.33"
     compile "org.apache.hadoop:hadoop-aws:2.7.5"
-    compile 'com.google.guava:guava:24.1-jre'
 
     testCompile 'org.jmockit:jmockit:1.38'
     // testCompile "junit:junit:4.+"

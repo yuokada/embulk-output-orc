@@ -6,19 +6,18 @@ import java.nio.file.{Files, Paths}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.DeleteObjectRequest
-import com.google.common.base.Throwables
 
 import scala.beans.BeanProperty
 
 object OrcOutputPluginHelper {
-  def removeOldFile(fpath: String, task: PluginTask) = {
+  def removeOldFile(fpath: String, task: PluginTask): Unit = {
     // NOTE: Delete a file if local-filesystem, not HDFS or S3.
     val schema = getSchema(fpath)
     if (isDeleteTarget(schema)) schema match {
       case "file" =>
         try Files.deleteIfExists(Paths.get(fpath))
         catch {
-          case e: IOException => Throwables.throwIfUnchecked(e)
+          case e: IOException => throw e
         }
       case "s3" | "s3n" | "s3a" =>
         val s3Url = parseS3Url(fpath)
@@ -50,7 +49,7 @@ object OrcOutputPluginHelper {
     val parts = s3url.split("(://|/)").toList
     val bucket = parts.apply(1)
     val key = parts.slice(2, parts.size).mkString("/")
-    new OrcOutputPluginHelper.AmazonS3URILikeObject(bucket, key)
+    OrcOutputPluginHelper.AmazonS3URILikeObject(bucket, key)
   }
 
   case class AmazonS3URILikeObject(@BeanProperty bucket: String, @BeanProperty key: String)
