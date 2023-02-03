@@ -41,8 +41,8 @@ dependencies {
     compile "com.amazonaws:aws-java-sdk:1.11.466"
     compile "com.amazonaws:aws-java-sdk-s3:1.11.466"
 
-//    compile "com.amazonaws:aws-java-sdk:1.10.77"
-//    compile "com.amazonaws:aws-java-sdk-s3:1.10.77"
+    // compile "com.amazonaws:aws-java-sdk:1.10.77"
+    // compile "com.amazonaws:aws-java-sdk-s3:1.10.77"
     // compile "org.apache.hadoop:hadoop-aws:2.7.5"
     compile("org.apache.hadoop:hadoop-aws:2.7.5") {
         exclude module : 'com.amazonaws:aws-java-sdk'
