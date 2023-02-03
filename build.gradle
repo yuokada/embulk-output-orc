@@ -23,7 +23,7 @@ configurations {
 }
 
 version = "0.3.5"
-def EMBULK_VERSION = "0.9.23"
+def EMBULK_VERSION = "0.10.28"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
