@@ -1,11 +1,11 @@
 plugins {
-    id "com.jfrog.bintray" version "1.1"
-    id "com.github.jruby-gradle.base" version "1.5.0"
+    id "com.jfrog.bintray" version "1.8.5"
+    id "com.github.jruby-gradle.base" version "1.7.0"
     id "java"
     id "scala"
     id "checkstyle"
 //    id "com.github.spotbugs" version "3.0.1"
-    id "org.sonarqube" version "2.5"
+    id "org.sonarqube" version "3.5.0.2730"
 }
 import com.github.jrubygradle.JRubyExec
 repositories {
@@ -29,32 +29,29 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile  "org.embulk:embulk-core:$EMBULK_VERSION"
-    provided "org.embulk:embulk-core:$EMBULK_VERSION"
-    compile  "org.scala-lang:scala-library:2.12.+"
+    compileOnly    "org.embulk:embulk-core:$EMBULK_VERSION"
+    implementation "org.embulk:embulk-core:$EMBULK_VERSION"
+    implementation "org.scala-lang:scala-library:2.12.+"
 
-    compile "org.apache.orc:orc:1.5.4"
-    compile "org.apache.orc:orc-core:1.5.4"
-    compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
+    implementation "org.apache.orc:orc:1.5.4"
+    implementation "org.apache.orc:orc-core:1.5.4"
+    implementation "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
-    compile('org.embulk:embulk-util-aws-credentials:0.4.1')
-    compile "com.amazonaws:aws-java-sdk:1.11.466"
-    compile "com.amazonaws:aws-java-sdk-s3:1.11.466"
+    implementation('org.embulk:embulk-util-aws-credentials:0.4.1')
+    implementation "com.amazonaws:aws-java-sdk:1.12.399"
+    implementation "com.amazonaws:aws-java-sdk-s3:1.12.399"
 
-    // compile "com.amazonaws:aws-java-sdk:1.10.77"
-    // compile "com.amazonaws:aws-java-sdk-s3:1.10.77"
-    // compile "org.apache.hadoop:hadoop-aws:2.7.5"
-    compile("org.apache.hadoop:hadoop-aws:2.7.5") {
-        exclude module : 'com.amazonaws:aws-java-sdk'
+    implementation("org.apache.hadoop:hadoop-aws:2.7.5") {
+        exclude module: 'com.amazonaws:aws-java-sdk'
     }
-    compile 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.guava:guava:24.1-jre'
 
-    testCompile 'org.jmockit:jmockit:1.38'
-    // testCompile "junit:junit:4.+"
-    testCompile 'org.hamcrest:hamcrest-core:2.2'
-    testCompile 'org.testng:testng:6.14.2'
-    testCompile "org.embulk:embulk-core:$EMBULK_VERSION:tests"
-    testCompile "org.embulk:embulk-standards:$EMBULK_VERSION"
+    testImplementation 'org.jmockit:jmockit:1.38'
+    // testImplementation "junit:junit:4.+"
+    testImplementation 'org.hamcrest:hamcrest-core:2.2'
+    testImplementation 'org.testng:testng:6.14.2'
+    testImplementation "org.embulk:embulk-core:$EMBULK_VERSION:tests"
+    testImplementation "org.embulk:embulk-standards:$EMBULK_VERSION"
 }
 
 sourceSets {
