@@ -44,7 +44,7 @@ dependencies {
     implementation("org.apache.hadoop:hadoop-aws:2.7.5") {
         exclude module: 'com.amazonaws:aws-java-sdk'
     }
-    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.guava:guava:31.1-jre'
 
     testImplementation 'org.jmockit:jmockit:1.38'
     // testImplementation "junit:junit:4.+"
