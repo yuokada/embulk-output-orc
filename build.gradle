@@ -29,25 +29,25 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile  "org.embulk:embulk-core:$EMBULK_VERSION"
-    provided "org.embulk:embulk-core:$EMBULK_VERSION"
-    compile  "org.scala-lang:scala-library:2.12.+"
+    implementation  "org.embulk:embulk-core:$EMBULK_VERSION"
+    compileOnly "org.embulk:embulk-core:$EMBULK_VERSION"
+    implementation  "org.scala-lang:scala-library:2.12.+"
 
-    compile "org.apache.orc:orc:1.5.4"
-    compile "org.apache.orc:orc-core:1.5.4"
-    compile "org.apache.hadoop:hadoop-hdfs:2.7.5"
+    implementation "org.apache.orc:orc:1.5.4"
+    implementation "org.apache.orc:orc-core:1.5.4"
+    implementation "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
-    compile('org.embulk:embulk-util-aws-credentials:0.4.1')
-    compile "com.amazonaws:aws-java-sdk:1.11.466"
-    compile "com.amazonaws:aws-java-sdk-s3:1.11.466"
+    implementation('org.embulk:embulk-util-aws-credentials:0.4.1')
+    implementation "com.amazonaws:aws-java-sdk:1.11.466"
+    implementation "com.amazonaws:aws-java-sdk-s3:1.11.466"
 
     // compile "com.amazonaws:aws-java-sdk:1.10.77"
     // compile "com.amazonaws:aws-java-sdk-s3:1.10.77"
     // compile "org.apache.hadoop:hadoop-aws:2.7.5"
-    compile("org.apache.hadoop:hadoop-aws:2.7.5") {
+    implementation("org.apache.hadoop:hadoop-aws:2.7.5") {
         exclude module : 'com.amazonaws:aws-java-sdk'
     }
-    compile 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.guava:guava:24.1-jre'
 
     testImplementation 'org.jmockit:jmockit:1.38'
     // testImplementation "junit:junit:4.+"
