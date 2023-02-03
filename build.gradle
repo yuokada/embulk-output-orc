@@ -41,7 +41,7 @@ dependencies {
     implementation "com.amazonaws:aws-java-sdk:1.12.399"
     implementation "com.amazonaws:aws-java-sdk-s3:1.12.399"
 
-    implementation("org.apache.hadoop:hadoop-aws:2.7.5") {
+    implementation("org.apache.hadoop:hadoop-aws:3.3.4") {
         exclude module: 'com.amazonaws:aws-java-sdk'
     }
     implementation 'com.google.guava:guava:24.1-jre'
