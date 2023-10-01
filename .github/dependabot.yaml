@@ -8,8 +8,14 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "wwekly"
+      day: "saturday"
+      time: "07:00"
+      timezone: "Asia/Tokyo"
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "saturday"
+      time: "07:00"
+      timezone: "Asia/Tokyo"
