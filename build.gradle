@@ -31,7 +31,7 @@ targetCompatibility = 1.8
 dependencies {
     compileOnly    "org.embulk:embulk-core:$EMBULK_VERSION"
     implementation "org.embulk:embulk-core:$EMBULK_VERSION"
-    implementation "org.scala-lang:scala-library:2.12.+"
+    implementation "org.scala-lang:scala-library:2.13.+"
 
     implementation "org.apache.orc:orc:1.5.4"
     implementation "org.apache.orc:orc-core:1.5.4"
