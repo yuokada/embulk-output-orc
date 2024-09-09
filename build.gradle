@@ -49,7 +49,7 @@ dependencies {
     testImplementation 'org.jmockit:jmockit:1.38'
     // testImplementation "junit:junit:4.+"
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
-    testImplementation 'org.testng:testng:6.14.2'
+    testImplementation 'org.testng:testng:7.10.2'
     testImplementation "org.embulk:embulk-core:$EMBULK_VERSION:tests"
     testImplementation "org.embulk:embulk-standards:$EMBULK_VERSION"
 }
