@@ -2,14 +2,12 @@ package org.embulk.output.orc
 
 import java.io.IOException
 import java.util
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{LocalFileSystem, Path}
 import org.apache.hadoop.hdfs.DistributedFileSystem
 import org.apache.hadoop.util.VersionInfo
 import org.apache.orc.{CompressionKind, MemoryManager, OrcFile, TypeDescription, Writer}
 import org.embulk.config.{ConfigSource, TaskReport, TaskSource}
-import org.embulk.spi.util.Timestamps
 import org.embulk.spi.{Exec, OutputPlugin, PageReader, Schema}
 import org.embulk.util.aws.credentials.AwsCredentials
 
@@ -127,7 +125,7 @@ class OrcOutputPlugin extends OutputPlugin {
   }
 
   private def createWriter(task: PluginTask, schema: Schema, processorIndex: Int): Writer = {
-    val timestampFormatters = Timestamps.newTimestampColumnFormatters(task, schema, task.getColumnOptions)
+    // val timestampFormatters = Timestamps.newTimestampColumnFormatters(task, schema, task.getColumnOptions)
     val conf = getHadoopConfiguration(task)
     val oschema = OrcOutputPlugin.getSchema(schema)
     // see: https://groups.google.com/forum/#!topic/vertx/lLb-slzpWVg

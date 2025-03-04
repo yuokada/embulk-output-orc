@@ -80,6 +80,7 @@ dependencies {
     compileOnly    "org.embulk:embulk-core:$EMBULK_VERSION"
     implementation "org.embulk:embulk-core:$EMBULK_VERSION"
     implementation "org.embulk:embulk-util-config:0.5.0"
+    implementation "org.embulk:embulk-util-timestamp:0.2.2"
     implementation "org.scala-lang:scala-library:2.13.+"
 
     implementation "org.apache.orc:orc:1.5.4"
