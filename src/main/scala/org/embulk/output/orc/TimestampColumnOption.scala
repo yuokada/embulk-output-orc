@@ -4,7 +4,7 @@ import java.util
 
 import com.google.common.base.Optional
 import org.embulk.config.{Config, ConfigDefault, Task}
-import org.embulk.spi.time.TimestampFormatter
+// import org.embulk.spi.time.TimestampFormatter
 import org.joda.time.DateTimeZone
 
 /*
@@ -21,7 +21,7 @@ public interface TimestampColumnOption
 }
  */
 
-trait TimestampColumnOption extends Task with TimestampFormatter.TimestampColumnOption {
+trait TimestampColumnOption extends Task {
   @Config("from_timezone")
   @ConfigDefault("null")
   def getFromTimeZone: Optional[DateTimeZone]
