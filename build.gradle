@@ -23,7 +23,6 @@ repositories {
 }
 
 configurations {
-    provided
     // e.g: compile.exclude group: 'commons-logging', module: 'commons-logging'   // commons-logging api is provided by jcl-over-slf4j
     //    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12"
     runtime.exclude group: 'xml-apis', module: 'xml-apis'
@@ -85,13 +84,6 @@ embulkPlugin {
     type = "orc"
 }
 
-task classpath(type: Copy, dependsOn: ["jar"]) {
-    doFirst { file("classpath").deleteDir() }
-    from (configurations.runtime - configurations.provided + files(jar.archivePath))
-    into "classpath"
-}
-clean { delete "classpath" }
-
 checkstyle {
     configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
     toolVersion = '6.14.1'
@@ -121,38 +113,36 @@ task checkstyle(type: Checkstyle) {
 //    script "gem"
 //    scriptArgs "push", "pkg/${project.name}-${project.version}.gem"
 //}
-
-task "package"(dependsOn: ["gemspec", "classpath"]) {
-    doLast {
-        println "> Build succeeded."
-        println "> You can run embulk with '-L ${file(".").absolutePath}' argument."
-    }
-}
-
-task gemspec {
-    ext.gemspecFile = file("${project.name}.gemspec")
-    inputs.file "build.gradle"
-    outputs.file gemspecFile
-    doLast { gemspecFile.write($/
-Gem::Specification.new do |spec|
-  spec.name          = "${project.name}"
-  spec.version       = "${project.version}"
-  spec.authors       = ["yuokada"]
-  spec.summary       = %[Orc output plugin for Embulk]
-  spec.description   = %[Dumps records to Orc format file.]
-  spec.email         = ["callistoiv+git@gmail.com"]
-  spec.licenses      = ["MIT"]
-  spec.homepage      = "https://github.com/yuokada/embulk-output-orc"
-
-  spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
-  spec.test_files    = spec.files.grep(%r"^(test|spec)/")
-  spec.require_paths = ["lib"]
-
-  #spec.add_dependency 'YOUR_GEM_DEPENDENCY', ['~> YOUR_GEM_DEPENDENCY_VERSION']
-  spec.add_development_dependency 'bundler', ['~> 1.0']
-  spec.add_development_dependency 'rake', ['>= 10.0']
-end
-/$)
-    }
-}
+//task "package"(dependsOn: ["gemspec", "classpath"]) {
+//    doLast {
+//        println "> Build succeeded."
+//        println "> You can run embulk with '-L ${file(".").absolutePath}' argument."
+//    }
+//}
+//task gemspec {
+//    ext.gemspecFile = file("${project.name}.gemspec")
+//    inputs.file "build.gradle"
+//    outputs.file gemspecFile
+//    doLast { gemspecFile.write($/
+//Gem::Specification.new do |spec|
+//  spec.name          = "${project.name}"
+//  spec.version       = "${project.version}"
+//  spec.authors       = ["yuokada"]
+//  spec.summary       = %[Orc output plugin for Embulk]
+//  spec.description   = %[Dumps records to Orc format file.]
+//  spec.email         = ["callistoiv+git@gmail.com"]
+//  spec.licenses      = ["MIT"]
+//  spec.homepage      = "https://github.com/yuokada/embulk-output-orc"
+//
+//  spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
+//  spec.test_files    = spec.files.grep(%r"^(test|spec)/")
+//  spec.require_paths = ["lib"]
+//
+//  #spec.add_dependency 'YOUR_GEM_DEPENDENCY', ['~> YOUR_GEM_DEPENDENCY_VERSION']
+//  spec.add_development_dependency 'bundler', ['~> 1.0']
+//  spec.add_development_dependency 'rake', ['>= 10.0']
+//end
+///$)
+//    }
+//}
 clean { delete "${project.name}.gemspec" }
