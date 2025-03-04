@@ -29,8 +29,8 @@ configurations {
 }
 
 version = "0.3.5"
-group = "com.example"
-description = "An Embulk plugin to load example data."
+group = "io.github.yuokada"
+description = "An embulk plugin to dump records to files with Apache ORC format."
 def EMBULK_VERSION = "0.11.5"
 
 java {
