@@ -4,7 +4,6 @@ import java.util
 
 import com.google.common.base.Optional
 import org.embulk.config.{Config, ConfigDefault, Task}
-// import org.embulk.spi.time.TimestampFormatter
 import org.joda.time.DateTimeZone
 
 /*

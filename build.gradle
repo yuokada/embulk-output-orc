@@ -1,40 +1,8 @@
-//buildscript {
-//    repositories {
-//        mavenCentral()
-//        gradlePluginPortal()
-//        // https://repo1.maven.org/maven2/
-//        maven {
-//            url "https://repo1.maven.org/maven2/"
-//        }
-//        maven { url 'https://nexus.web.cern.ch/nexus/content/repositories/public/' }
-//    }
-//}
-//
-//plugins {
-//    // id "com.jfrog.bintray" version "1.8.5"
-//    // id "com.github.jruby-gradle.base" version "2.0.2"
-////    id "com.github.jruby-gradle.base" version "1.7.0"
-//    id "java"
-//    id "scala"
-//    id "checkstyle"
-////    id "com.github.spotbugs" version "3.0.1"
-//    id "org.sonarqube" version "3.5.0.2730"
-//}
-//// import com.github.jrubygradle.JRubyExec
-//repositories {
-//    mavenCentral()
-//    maven { url 'https://nexus.web.cern.ch/nexus/content/repositories/public/' }
-////    maven {
-////        url "http://dl.bintray.com/embulk-input-s3/maven"
-////    }
-//}
 buildscript {
     repositories {
         mavenCentral()
         gradlePluginPortal()
-        maven {
-            url "https://repo1.maven.org/maven2/"
-        }
+        maven {url "https://repo1.maven.org/maven2/"}
         maven { url 'https://nexus.web.cern.ch/nexus/content/repositories/public/' }
     }
 }
@@ -66,8 +34,6 @@ group = "com.example"
 description = "An Embulk plugin to load example data."
 def EMBULK_VERSION = "0.11.5"
 
-//sourceCompatibility = 1.8
-//targetCompatibility = 1.8
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(8)
@@ -97,15 +63,11 @@ dependencies {
     implementation 'com.google.guava:guava:24.1-jre'
 
     testImplementation 'org.jmockit:jmockit:1.38'
-    // testImplementation "junit:junit:4.+"
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
-    testImplementation 'org.testng:testng:6.14.2'
-    // testImplementation "org.embulk:embulk-core:$EMBULK_VERSION:tests"
-    // testImplementation "org.embulk:embulk-standards:$EMBULK_VERSION"
+    testImplementation "org.testng:testng:6.14.2"
     testImplementation "org.embulk:embulk-spi:0.11"
-    testImplementation "org.embulk:embulk-core:0.11.0"
-    testImplementation "org.embulk:embulk-deps:0.11.0"
-    testImplementation "org.embulk:embulk-junit4:0.11.0"
+    testImplementation "org.embulk:embulk-core:$EMBULK_VERSION"
+    testImplementation "org.embulk:embulk-deps:$EMBULK_VERSION"
 }
 
 sourceSets {
