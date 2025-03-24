@@ -38,8 +38,8 @@ dependencies {
     implementation "org.apache.hadoop:hadoop-hdfs:2.7.5"
 
     implementation('org.embulk:embulk-util-aws-credentials:0.4.1')
-    implementation "com.amazonaws:aws-java-sdk:1.12.399"
-    implementation "com.amazonaws:aws-java-sdk-s3:1.12.399"
+    implementation "com.amazonaws:aws-java-sdk:1.12.782"
+    implementation "com.amazonaws:aws-java-sdk-s3:1.12.782"
 
     implementation("org.apache.hadoop:hadoop-aws:2.7.5") {
         exclude module: 'com.amazonaws:aws-java-sdk'
