@@ -46,7 +46,7 @@ dependencies {
     }
     implementation 'com.google.guava:guava:24.1-jre'
 
-    testImplementation 'org.jmockit:jmockit:1.38'
+    testImplementation 'org.jmockit:jmockit:1.49'
     // testImplementation "junit:junit:4.+"
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
     testImplementation 'org.testng:testng:6.14.2'
