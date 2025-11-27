@@ -1,5 +1,10 @@
 # Orc output plugin for Embulk
 
+> [!WARNING]
+> [Embulk into the maintenance mode \| Embulk](https://www.embulk.org/articles/2025/11/10/embulk-into-the-maintenance-mode.html)
+> 
+> Embulk got into the maintenance mode. Therefore, this plugin will also end its maintenance.
+
 [![Build Status](https://github.com/yuokada/embulk-output-orc/workflows/Java%20CI/badge.svg)](https://github.com/yuokada/embulk-output-orc/actions)
 [![Gem Version](https://badge.fury.io/rb/embulk-output-orc.svg)](https://badge.fury.io/rb/embulk-output-orc)
 
